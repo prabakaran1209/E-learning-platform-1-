@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Results - EduPortal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">🎓</div>
+        <span>Edu<span class="brand-accent">Portal</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="courses.html" class="nav-link">Courses</a></li>
+        <li><a href="notes.html" class="nav-link">Study Notes</a></li>
+        <li><a href="videos.html" class="nav-link">Video Lessons</a></li>
+        <li><a href="quizzes.html" class="nav-link active">Online Quizzes</a></li>
+      </ul>
+
+      <div class="nav-auth" id="navbar-auth-section"></div>
+    </div>
+  </header>
+
+  <main style="padding: 40px 0 80px;">
+    <div class="container" style="max-width: 820px;">
+
+      <!-- Score Card Overview -->
+      <div class="result-card" id="result-summary-box">
+        <div style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px;" id="result-course-name">
+          Course Name
+        </div>
+        <h1 style="font-size: 2rem; margin-bottom: 24px;" id="result-quiz-title">Quiz Results</h1>
+
+        <div class="score-circle" id="score-ring">
+          <span id="score-percentage">0%</span>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <span class="badge" id="pass-status-badge" style="font-size: 1rem; padding: 6px 18px;">Passed</span>
+        </div>
+
+        <!-- 3 Statistics Columns -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0 32px; padding: 20px; background: #f8fafc; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+          <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--success);" id="stat-correct">0</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Correct Answers</div>
+          </div>
+          <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--danger);" id="stat-wrong">0</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Incorrect Answers</div>
+          </div>
+          <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary);" id="stat-total">0</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Total Questions</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <a href="quizzes.html" class="btn btn-outline" id="retake-btn">🔄 Retake Quiz</a>
+          <a href="student-dashboard.html" class="btn btn-primary">📊 View Dashboard</a>
+          <a href="progress.html" class="btn btn-secondary">📈 Learning Progress</a>
+        </div>
+      </div>
+
+      <!-- Detailed Review of Every Question -->
+      <div style="margin-top: 40px;">
+        <h3 style="font-size: 1.35rem; margin-bottom: 20px;">Detailed Question Breakdown & Explanations</h3>
+        <div id="breakdown-list" style="display: flex; flex-direction: column; gap: 20px;">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 EduPortal E-Learning Management System. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const attemptId = urlParams.get('attemptId');
+
+      if (!attemptId) {
+        showToast('No quiz attempt specified', 'error');
+        setTimeout(() => window.location.href = 'quizzes.html', 1000);
+        return;
+      }
+
+      try {
+        const res = await API.getQuizResult(attemptId);
+        renderQuizResult(res.data);
+      } catch (err) {
+        showToast('Error loading quiz results: ' + err.message, 'error');
+      }
+    });
+
+    function renderQuizResult(attempt) {
+      document.getElementById('result-quiz-title').innerText = attempt.quiz ? attempt.quiz.title : 'Assessment Result';
+      document.getElementById('result-course-name').innerText = attempt.course ? attempt.course.title : 'Course Assessment';
+
+      const percentage = attempt.percentage;
+      const passed = attempt.passed;
+
+      document.getElementById('score-percentage').innerText = `${percentage}%`;
+      const ring = document.getElementById('score-ring');
+      ring.className = `score-circle ${passed ? 'score-passed' : 'score-failed'}`;
+
+      const badge = document.getElementById('pass-status-badge');
+      if (passed) {
+        badge.className = 'badge badge-success';
+        badge.innerText = '🎉 Congratulations, You Passed!';
+      } else {
+        badge.className = 'badge badge-danger';
+        badge.innerText = 'Needs Review - Passing Grade is 60%';
+      }
+
+      document.getElementById('stat-correct').innerText = attempt.score;
+      document.getElementById('stat-wrong').innerText = attempt.totalQuestions - attempt.score;
+      document.getElementById('stat-total').innerText = attempt.totalQuestions;
+
+      if (attempt.quiz) {
+        document.getElementById('retake-btn').href = `quizzes.html?quizId=${attempt.quiz._id}`;
+      }
+
+      // Render Question breakdown
+      const container = document.getElementById('breakdown-list');
+      const answers = attempt.answers || [];
+
+      container.innerHTML = answers.map((ans, idx) => {
+        const isCorrect = ans.isCorrect;
+        const selectedOptText = (ans.options && ans.selectedOption >= 0 && ans.options[ans.selectedOption]) ? ans.options[ans.selectedOption] : 'No answer selected';
+        const correctOptText = (ans.options && ans.correctOption >= 0 && ans.options[ans.correctOption]) ? ans.options[ans.correctOption] : 'Answer';
+
+        return `
+          <div class="card" style="border-left: 6px solid ${isCorrect ? 'var(--success)' : 'var(--danger)'}; padding: 22px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <span class="badge ${isCorrect ? 'badge-success' : 'badge-danger'}">
+                ${isCorrect ? '✅ Correct' : '❌ Incorrect'}
+              </span>
+              <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Question ${idx + 1}</span>
+            </div>
+
+            <h4 style="font-size: 1.05rem; margin-bottom: 14px; line-height: 1.4;">${ans.questionText}</h4>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; margin-bottom: 14px;">
+              <div style="padding: 10px 14px; border-radius: var(--radius-sm); background: ${isCorrect ? '#ecfdf5' : '#fef2f2'}; border: 1px solid ${isCorrect ? '#a7f3d0' : '#fecaca'};">
+                <strong>Your Answer:</strong> ${selectedOptText}
+              </div>
+              ${!isCorrect ? `
+                <div style="padding: 10px 14px; border-radius: var(--radius-sm); background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;">
+                  <strong>Correct Answer:</strong> ${correctOptText}
+                </div>
+              ` : ''}
+            </div>
+
+            ${ans.explanation ? `
+              <div style="padding: 12px; background: #f8fafc; border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text-muted); border-left: 3px solid var(--primary);">
+                💡 <strong>Explanation:</strong> ${ans.explanation}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Students - Admin Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Admin Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">🎓</div>
+        <div style="font-weight: 800; font-size: 1.2rem;">Edu<span class="brand-accent">Portal</span> <span class="badge badge-purple" style="font-size: 0.65rem;">Admin</span></div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="sidebar-nav-heading">Administration</div>
+        <a href="admin-dashboard.html" class="sidebar-link">
+          <span>📊</span> Admin Overview
+        </a>
+        <a href="manage-courses.html" class="sidebar-link">
+          <span>📚</span> Manage Courses
+        </a>
+        <a href="manage-materials.html" class="sidebar-link">
+          <span>📁</span> Notes & Videos
+        </a>
+        <a href="manage-quizzes.html" class="sidebar-link">
+          <span>🧠</span> Manage Quizzes
+        </a>
+        <a href="manage-students.html" class="sidebar-link active">
+          <span>👥</span> Manage Students
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar-circle" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);">A</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-admin-name">Admin User</div>
+            <div class="user-role-label">System Administrator</div>
+          </div>
+          <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" title="Logout" style="padding: 6px;">🚪</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="dashboard-main">
+      <div class="dashboard-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <div class="page-title">Registered Students & Progress</div>
+        </div>
+        <div class="topbar-right">
+          <span class="badge badge-primary" id="total-students-badge">0 Students</span>
+        </div>
+      </div>
+
+      <div class="dashboard-body">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Student Directory & Academic Monitoring</h2>
+            <p style="font-size: 0.88rem;">Monitor student course enrolments, completed curriculum, and assessment results.</p>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Joined Date</th>
+                <th>Enrolled Courses</th>
+                <th>Completed Courses</th>
+                <th>Quiz Submissions</th>
+                <th>Avg Quiz Grade</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody">
+              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading student roster...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.requireAuth('admin')) return;
+
+      const user = Auth.getUser();
+      document.getElementById('sidebar-admin-name').innerText = user.name;
+
+      await loadStudentsRoster();
+    });
+
+    async function loadStudentsRoster() {
+      try {
+        const res = await API.getAdminStudents();
+        const students = res.data;
+        const tbody = document.getElementById('students-tbody');
+        document.getElementById('total-students-badge').innerText = `${students.length} Registered Students`;
+
+        if (students.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">No students registered yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = students.map(s => {
+          const joinedDate = new Date(s.createdAt).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          });
+
+          return `
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div class="user-avatar-circle" style="width: 38px; height: 38px; font-size: 0.95rem;">
+                    ${s.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div style="font-weight: 700;">${s.name}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">${s.email}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-size: 0.85rem; color: var(--text-muted);">${joinedDate}</td>
+              <td><span class="badge badge-info">${s.totalEnrolments} Enrolled</span></td>
+              <td><span class="badge ${s.completedCourses > 0 ? 'badge-success' : 'badge-warning'}">${s.completedCourses} Completed</span></td>
+              <td>${s.quizAttemptsCount} Attempts</td>
+              <td>
+                <strong style="color: ${s.avgQuizScore >= 60 ? 'var(--success)' : (s.avgQuizScore > 0 ? 'var(--warning)' : 'var(--text-muted)')};">
+                  ${s.avgQuizScore}%
+                </strong>
+              </td>
+              <td>
+                <button onclick="deleteStudentAccount('${s._id}', '${s.name}')" class="btn btn-danger btn-sm" title="Remove Student">
+                  Remove
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        showToast('Error loading students: ' + err.message, 'error');
+      }
+    }
+
+    async function deleteStudentAccount(id, name) {
+      if (!confirm(`Are you sure you want to delete student account "${name}"? All their enrolments and quiz results will be purged!`)) {
+        return;
+      }
+
+      try {
+        await API.deleteStudent(id);
+        showToast('Student account deleted successfully', 'success');
+        await loadStudentsRoster();
+      } catch (err) {
+        showToast('Error deleting student: ' + err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
+

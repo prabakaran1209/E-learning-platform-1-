@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Study Materials & Videos - Admin Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .section-tab-btn {
+      padding: 12px 24px;
+      font-weight: 700;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+    .section-tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Admin Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">🎓</div>
+        <div style="font-weight: 800; font-size: 1.2rem;">Edu<span class="brand-accent">Portal</span> <span class="badge badge-purple" style="font-size: 0.65rem;">Admin</span></div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="sidebar-nav-heading">Administration</div>
+        <a href="admin-dashboard.html" class="sidebar-link">
+          <span>📊</span> Admin Overview
+        </a>
+        <a href="manage-courses.html" class="sidebar-link">
+          <span>📚</span> Manage Courses
+        </a>
+        <a href="manage-materials.html" class="sidebar-link active">
+          <span>📁</span> Notes & Videos
+        </a>
+        <a href="manage-quizzes.html" class="sidebar-link">
+          <span>🧠</span> Manage Quizzes
+        </a>
+        <a href="manage-students.html" class="sidebar-link">
+          <span>👥</span> Manage Students
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar-circle" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);">A</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-admin-name">Admin User</div>
+            <div class="user-role-label">System Administrator</div>
+          </div>
+          <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" title="Logout" style="padding: 6px;">🚪</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="dashboard-main">
+      <div class="dashboard-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <div class="page-title">Notes & Video Management</div>
+        </div>
+        <div class="topbar-right">
+          <button onclick="openNoteModal()" class="btn btn-primary btn-sm" id="btn-add-note">+ Upload PDF Note</button>
+          <button onclick="openVideoModal()" class="btn btn-gradient btn-sm" id="btn-add-video" style="display: none;">+ Add Video Lesson</button>
+        </div>
+      </div>
+
+      <div class="dashboard-body">
+        <!-- Switcher Tabs -->
+        <div style="display: flex; gap: 14px; margin-bottom: 28px;">
+          <button class="section-tab-btn active" id="tab-btn-notes" onclick="switchSection('notes')">
+            <span>📄</span> PDF Notes Management
+          </button>
+          <button class="section-tab-btn" id="tab-btn-videos" onclick="switchSection('videos')">
+            <span>🎥</span> Video Lessons Management
+          </button>
+        </div>
+
+        <!-- SECTION 1: PDF Notes Table -->
+        <div id="section-notes">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Uploaded PDF Notes</h3>
+              <p style="font-size: 0.88rem;">PDF documents available for students to preview and download.</p>
+            </div>
+            <button onclick="openNoteModal()" class="btn btn-outline btn-sm">+ Upload PDF</button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Course</th>
+                  <th>Subject & Topic</th>
+                  <th>File Size</th>
+                  <th>Uploaded Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="notes-tbody">
+                <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading notes...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECTION 2: Video Lessons Table -->
+        <div id="section-videos" style="display: none;">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Educational Video Lessons</h3>
+              <p style="font-size: 0.88rem;">Linked YouTube tutorials with completion tracking stored in MongoDB.</p>
+            </div>
+            <button onclick="openVideoModal()" class="btn btn-primary btn-sm">+ Add Video</button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Video Title</th>
+                  <th>Course</th>
+                  <th>Topic</th>
+                  <th>Duration</th>
+                  <th>Order</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="videos-tbody">
+                <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading videos...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Note Upload Modal -->
+  <div class="modal-overlay" id="note-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Upload Study Notes (PDF)</h3>
+        <button class="modal-close-btn" onclick="closeNoteModal()">×</button>
+      </div>
+
+      <form id="note-form">
+        <div class="form-group">
+          <label class="form-label" for="note-course-select">Associated Course *</label>
+          <select id="note-course-select" class="form-control form-select" required>
+            <option value="">Select a course...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="note-title-input">Note Title *</label>
+          <input type="text" id="note-title-input" class="form-control" placeholder="e.g. Chapter 3: CSS Grid Architecture" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="note-subject-input">Subject *</label>
+            <input type="text" id="note-subject-input" class="form-control" placeholder="e.g. Web Technologies" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="note-topic-input">Topic *</label>
+            <input type="text" id="note-topic-input" class="form-control" placeholder="e.g. Responsive Layouts" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="note-desc-input">Description</label>
+          <textarea id="note-desc-input" class="form-control" rows="2" placeholder="Brief summary of what these notes cover..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="note-pdf-file">PDF Document File *</label>
+          <input type="file" id="note-pdf-file" class="form-control" accept=".pdf,application/pdf" required>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+          <button type="button" class="btn btn-outline" onclick="closeNoteModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-note-btn">Upload Note</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Video Add Modal -->
+  <div class="modal-overlay" id="video-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Educational Video</h3>
+        <button class="modal-close-btn" onclick="closeVideoModal()">×</button>
+      </div>
+
+      <form id="video-form">
+        <div class="form-group">
+          <label class="form-label" for="video-course-select">Associated Course *</label>
+          <select id="video-course-select" class="form-control form-select" required>
+            <option value="">Select a course...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="video-title-input">Video Lesson Title *</label>
+          <input type="text" id="video-title-input" class="form-control" placeholder="e.g. Express.js Routing & Middleware" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="video-topic-input">Topic *</label>
+            <input type="text" id="video-topic-input" class="form-control" placeholder="e.g. Backend Architecture" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="video-duration-input">Duration</label>
+            <input type="text" id="video-duration-input" class="form-control" placeholder="e.g. 25 mins" value="20 mins">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="video-url-input">YouTube Video URL *</label>
+          <input type="url" id="video-url-input" class="form-control" placeholder="https://www.youtube.com/watch?v=..." required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="video-order-input">Lesson Order (Sequence Number)</label>
+          <input type="number" id="video-order-input" class="form-control" value="1" min="1">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="video-desc-input">Description</label>
+          <textarea id="video-desc-input" class="form-control" rows="2" placeholder="Key concepts discussed in this video..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+          <button type="button" class="btn btn-outline" onclick="closeVideoModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-video-btn">Save Video</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    let allCourses = [];
+
+    function switchSection(sec) {
+      if (sec === 'notes') {
+        document.getElementById('section-notes').style.display = 'block';
+        document.getElementById('section-videos').style.display = 'none';
+        document.getElementById('tab-btn-notes').classList.add('active');
+        document.getElementById('tab-btn-videos').classList.remove('active');
+        document.getElementById('btn-add-note').style.display = 'inline-flex';
+        document.getElementById('btn-add-video').style.display = 'none';
+      } else {
+        document.getElementById('section-notes').style.display = 'none';
+        document.getElementById('section-videos').style.display = 'block';
+        document.getElementById('tab-btn-notes').classList.remove('active');
+        document.getElementById('tab-btn-videos').classList.add('active');
+        document.getElementById('btn-add-note').style.display = 'none';
+        document.getElementById('btn-add-video').style.display = 'inline-flex';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.requireAuth('admin')) return;
+
+      const user = Auth.getUser();
+      document.getElementById('sidebar-admin-name').innerText = user.name;
+
+      await loadCoursesDropdowns();
+      await loadNotes();
+      await loadVideos();
+    });
+
+    async function loadCoursesDropdowns() {
+      try {
+        const res = await API.getCourses();
+        allCourses = res.data;
+
+        const noteSelect = document.getElementById('note-course-select');
+        const videoSelect = document.getElementById('video-course-select');
+
+        allCourses.forEach(c => {
+          const opt1 = document.createElement('option');
+          opt1.value = c._id;
+          opt1.textContent = c.title;
+          noteSelect.appendChild(opt1);
+
+          const opt2 = document.createElement('option');
+          opt2.value = c._id;
+          opt2.textContent = c.title;
+          videoSelect.appendChild(opt2);
+        });
+      } catch (err) {
+        showToast('Error loading courses: ' + err.message, 'error');
+      }
+    }
+
+    // Notes Handlers
+    async function loadNotes() {
+      try {
+        const res = await API.getNotes();
+        const tbody = document.getElementById('notes-tbody');
+        const notes = res.data;
+
+        if (notes.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">No notes uploaded yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = notes.map(n => {
+          const dateStr = new Date(n.createdAt).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          });
+
+          return `
+            <tr>
+              <td>
+                <div style="font-weight: 700;">${n.title}</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">${n.originalName}</div>
+              </td>
+              <td>${n.course ? n.course.title : '-'}</td>
+              <td><span class="badge badge-purple">${n.subject}</span><div style="font-size: 0.8rem; margin-top: 4px;">${n.topic}</div></td>
+              <td><span class="badge badge-info">${n.fileSize}</span></td>
+              <td style="font-size: 0.85rem; color: var(--text-muted);">${dateStr}</td>
+              <td>
+                <div class="table-actions">
+                  <a href="${n.fileUrl}" target="_blank" class="btn btn-outline btn-sm">Preview</a>
+                  <button onclick="deleteNote('${n._id}', '${n.title}')" class="btn btn-danger btn-sm">Delete</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        showToast('Error loading notes: ' + err.message, 'error');
+      }
+    }
+
+    function openNoteModal() {
+      document.getElementById('note-form').reset();
+      document.getElementById('note-modal').classList.add('active');
+    }
+
+    function closeNoteModal() {
+      document.getElementById('note-modal').classList.remove('active');
+    }
+
+    async function deleteNote(id, title) {
+      if (!confirm(`Are you sure you want to delete note "${title}"?`)) return;
+
+      try {
+        await API.deleteNote(id);
+        showToast('Study note deleted', 'success');
+        await loadNotes();
+      } catch (err) {
+        showToast('Error deleting note: ' + err.message, 'error');
+      }
+    }
+
+    document.getElementById('note-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('save-note-btn');
+      btn.disabled = true;
+      btn.innerText = 'Uploading...';
+
+      const formData = new FormData();
+      formData.append('course', document.getElementById('note-course-select').value);
+      formData.append('title', document.getElementById('note-title-input').value.trim());
+      formData.append('subject', document.getElementById('note-subject-input').value.trim());
+      formData.append('topic', document.getElementById('note-topic-input').value.trim());
+      formData.append('description', document.getElementById('note-desc-input').value.trim());
+
+      const fileInput = document.getElementById('note-pdf-file');
+      if (fileInput.files.length > 0) {
+        formData.append('pdfFile', fileInput.files[0]);
+      }
+
+      try {
+        await API.createNote(formData);
+        showToast('PDF notes uploaded successfully!', 'success');
+        closeNoteModal();
+        await loadNotes();
+      } catch (err) {
+        showToast('Error uploading note: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Upload Note';
+      }
+    });
+
+    // Videos Handlers
+    async function loadVideos() {
+      try {
+        const res = await API.getVideos();
+        const tbody = document.getElementById('videos-tbody');
+        const videos = res.data;
+
+        if (videos.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">No video lessons added yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = videos.map(v => `
+          <tr>
+            <td>
+              <div style="font-weight: 700;">${v.title}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">ID: ${v.youtubeId}</div>
+            </td>
+            <td>${v.course ? v.course.title : '-'}</td>
+            <td><span class="badge badge-primary">${v.topic}</span></td>
+            <td>⏱️ ${v.duration}</td>
+            <td><strong>#${v.order}</strong></td>
+            <td>
+              <div class="table-actions">
+                <a href="${v.youtubeUrl}" target="_blank" class="btn btn-outline btn-sm">Watch ↗</a>
+                <button onclick="deleteVideo('${v._id}', '${v.title}')" class="btn btn-danger btn-sm">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        showToast('Error loading videos: ' + err.message, 'error');
+      }
+    }
+
+    function openVideoModal() {
+      document.getElementById('video-form').reset();
+      document.getElementById('video-modal').classList.add('active');
+    }
+
+    function closeVideoModal() {
+      document.getElementById('video-modal').classList.remove('active');
+    }
+
+    async function deleteVideo(id, title) {
+      if (!confirm(`Are you sure you want to delete video lesson "${title}"?`)) return;
+
+      try {
+        await API.deleteVideo(id);
+        showToast('Video lesson removed', 'success');
+        await loadVideos();
+      } catch (err) {
+        showToast('Error deleting video: ' + err.message, 'error');
+      }
+    }
+
+    document.getElementById('video-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('save-video-btn');
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
+      const videoData = {
+        course: document.getElementById('video-course-select').value,
+        title: document.getElementById('video-title-input').value.trim(),
+        topic: document.getElementById('video-topic-input').value.trim(),
+        duration: document.getElementById('video-duration-input').value.trim(),
+        youtubeUrl: document.getElementById('video-url-input').value.trim(),
+        order: Number(document.getElementById('video-order-input').value),
+        description: document.getElementById('video-desc-input').value.trim()
+      };
+
+      try {
+        await API.createVideo(videoData);
+        showToast('Video lesson added successfully!', 'success');
+        closeVideoModal();
+        await loadVideos();
+      } catch (err) {
+        showToast('Error saving video: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save Video';
+      }
+    });
+  </script>
+</body>
+</html>
+

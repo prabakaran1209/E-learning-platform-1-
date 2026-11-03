@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Registration - EduPortal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .auth-page {
+      min-height: calc(100vh - var(--nav-height));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 40%);
+    }
+    .auth-card {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--shadow-lg);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">🎓</div>
+        <span>Edu<span class="brand-accent">Portal</span></span>
+      </a>
+      <div class="nav-auth" id="navbar-auth-section"></div>
+    </div>
+  </header>
+
+  <main class="auth-page">
+    <div class="auth-card">
+      <div style="text-align: center; margin-bottom: 28px;">
+        <span class="badge badge-primary">Student Registration</span>
+        <h2 style="margin-top: 10px; font-size: 1.8rem;">Create Your Account</h2>
+        <p style="font-size: 0.95rem;">Join thousands of students accessing notes & lectures</p>
+      </div>
+
+      <form id="register-form">
+        <div class="form-group">
+          <label class="form-label" for="reg-name">Full Name</label>
+          <input type="text" id="reg-name" class="form-control" placeholder="e.g. Alex Morgan" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-email">College / Academic Email</label>
+          <input type="email" id="reg-email" class="form-control" placeholder="student@elearn.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-password">Password</label>
+          <input type="password" id="reg-password" class="form-control" placeholder="Minimum 6 characters" minlength="6" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-role">Register As</label>
+          <select id="reg-role" class="form-control form-select" onchange="toggleAdminField()">
+            <option value="student" selected>Student Account</option>
+            <option value="admin">Administrator / Faculty Account</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="admin-secret-group" style="display: none;">
+          <label class="form-label" for="reg-secret">Admin Security Key</label>
+          <input type="password" id="reg-secret" class="form-control" placeholder="Enter administrative passcode (admin123)">
+          <small style="color: var(--text-muted); font-size: 0.8rem;">Required to register as an administrator</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 1rem; margin-top: 10px;" id="reg-btn">
+          Create Account
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 0.9rem;">
+        Already have an account? <a href="login.html" style="font-weight: 700;">Sign in here</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    function toggleAdminField() {
+      const role = document.getElementById('reg-role').value;
+      const group = document.getElementById('admin-secret-group');
+      group.style.display = role === 'admin' ? 'block' : 'none';
+    }
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('reg-btn');
+      btn.disabled = true;
+      btn.innerText = 'Creating account...';
+
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const role = document.getElementById('reg-role').value;
+      const adminSecret = document.getElementById('reg-secret').value;
+
+      try {
+        const payload = { name, email, password, role };
+        if (role === 'admin' && adminSecret) {
+          payload.adminSecret = adminSecret;
+        }
+
+        const res = await API.register(payload);
+        Auth.setAuth(res.token, res.user);
+        showToast('Account registered successfully! Welcome aboard.', 'success');
+
+        setTimeout(() => {
+          if (res.user.role === 'admin') {
+            window.location.href = 'admin-dashboard.html';
+          } else {
+            window.location.href = 'student-dashboard.html';
+          }
+        }, 800);
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        btn.innerText = 'Create Account';
+      }
+    });
+  </script>
+</body>
+</html>
+

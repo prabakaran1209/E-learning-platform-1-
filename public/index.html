@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduPortal - Learn Without Limits | Modern E-Learning Platform</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">🎓</div>
+        <span>Edu<span class="brand-accent">Portal</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="courses.html" class="nav-link">Courses</a></li>
+        <li><a href="notes.html" class="nav-link">Study Notes</a></li>
+        <li><a href="videos.html" class="nav-link">Video Lessons</a></li>
+        <li><a href="quizzes.html" class="nav-link">Online Quizzes</a></li>
+      </ul>
+
+      <div class="nav-auth" id="navbar-auth-section">
+        <!-- Dynamically injected by navbar.js -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-pill">
+        <span>✨</span> Next-Gen College Learning Experience
+      </div>
+      <h1 class="hero-title">
+        Learn Without <span class="gradient-text">Limits</span>
+      </h1>
+      <p class="hero-subtitle">
+        Explore courses, access learning materials, and track your progress with our all-in-one student-centered learning management portal.
+      </p>
+
+      <div class="hero-actions">
+        <a href="register.html" class="btn btn-gradient btn-lg">
+          <span>🚀</span> Get Started Free
+        </a>
+        <a href="courses.html" class="btn btn-outline btn-lg">
+          <span>🔍</span> Explore Courses
+        </a>
+      </div>
+
+      <!-- Platform Statistics Banner -->
+      <div class="stats-banner" id="platform-stats">
+        <div class="stat-item">
+          <div class="stat-number" id="stat-courses">4+</div>
+          <div class="stat-label">Active Courses</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="stat-students">150+</div>
+          <div class="stat-label">Enrolled Students</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="stat-notes">20+</div>
+          <div class="stat-label">Curated Study Notes</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="stat-quizzes">100%</div>
+          <div class="stat-label">Verified Curriculum</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Platform Core Features -->
+  <section style="padding: 70px 0; background: white; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+      <div style="text-align: center; max-width: 600px; margin: 0 auto 50px;">
+        <span class="badge badge-primary">Comprehensive Features</span>
+        <h2 style="margin-top: 10px;">Everything You Need To Excel</h2>
+        <p>A unified portal designed for focused learning, self-assessment, and progress tracking.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px;">
+        <div class="card card-interactive">
+          <div style="font-size: 2.2rem; margin-bottom: 14px;">📚</div>
+          <h4 style="margin-bottom: 8px;">Course Catalogue</h4>
+          <p style="font-size: 0.9rem;">Browse curated college curriculum across computer science, engineering, and data science with category filters.</p>
+        </div>
+
+        <div class="card card-interactive">
+          <div style="font-size: 2.2rem; margin-bottom: 14px;">📄</div>
+          <h4 style="margin-bottom: 8px;">PDF Notes & Materials</h4>
+          <p style="font-size: 0.9rem;">Download high-yield PDF lecture notes, formula sheets, and chapter summaries organized by subject.</p>
+        </div>
+
+        <div class="card card-interactive">
+          <div style="font-size: 2.2rem; margin-bottom: 14px;">🎥</div>
+          <h4 style="margin-bottom: 8px;">Integrated Video Learning</h4>
+          <p style="font-size: 0.9rem;">Watch structured video lectures, mark lessons as completed, and seamlessly track video progress in MongoDB.</p>
+        </div>
+
+        <div class="card card-interactive">
+          <div style="font-size: 2.2rem; margin-bottom: 14px;">🧠</div>
+          <h4 style="margin-bottom: 8px;">Online MCQ Quizzes</h4>
+          <p style="font-size: 0.9rem;">Practice chapter quizzes with instant automated scoring, detailed explanations, and historical performance tracking.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Courses Section -->
+  <section style="padding: 80px 0;">
+    <div class="container">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <span class="badge badge-purple">Featured Courses</span>
+          <h2 style="margin-top: 8px;">Start Learning Today</h2>
+          <p>Hand-picked, high-demand university-level courses taught by experienced educators.</p>
+        </div>
+        <a href="courses.html" class="btn btn-outline">View All Courses →</a>
+      </div>
+
+      <div class="grid-cards" id="featured-courses-grid">
+        <!-- Injected via JavaScript -->
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+          <p>Loading featured courses...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Student Call to Action -->
+  <section style="padding: 70px 0; background: var(--accent-gradient); color: white; text-align: center;">
+    <div class="container" style="max-width: 720px;">
+      <h2 style="color: white; font-size: 2.4rem; margin-bottom: 16px;">Ready to Elevate Your Academic Success?</h2>
+      <p style="color: rgba(255, 255, 255, 0.9); font-size: 1.15rem; margin-bottom: 32px;">
+        Create your free student account now, enroll in top-rated courses, and begin tracking your mastery step-by-step.
+      </p>
+      <a href="register.html" class="btn btn-lg" style="background: white; color: var(--primary); font-weight: 700; box-shadow: var(--shadow-lg);">
+        Create Student Account
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-brand">
+            <div class="brand-icon">🎓</div>
+            <span>Edu<span class="brand-accent">Portal</span></span>
+          </a>
+          <p>A modern full-stack educational portal designed for colleges to organize study materials, lecture videos, and student progress.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Learning</h5>
+          <ul class="footer-links">
+            <li><a href="courses.html">All Courses</a></li>
+            <li><a href="notes.html">Study Materials</a></li>
+            <li><a href="videos.html">Video Lectures</a></li>
+            <li><a href="quizzes.html">Online Quizzes</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Portals</h5>
+          <ul class="footer-links">
+            <li><a href="student-dashboard.html">Student Dashboard</a></li>
+            <li><a href="progress.html">Progress Tracker</a></li>
+            <li><a href="admin-dashboard.html">Admin Portal</a></li>
+            <li><a href="login.html">Sign In</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Demo Accounts</h5>
+          <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+            <p><strong>Admin:</strong> admin@elearn.com / admin123</p>
+            <p style="margin-top: 6px;"><strong>Student:</strong> student@elearn.com / student123</p>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 EduPortal E-Learning Management System. All rights reserved. Built for College Web Technology Project.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await API.getCourses('?limit=3');
+        const container = document.getElementById('featured-courses-grid');
+        if (res.data && res.data.length > 0) {
+          container.innerHTML = res.data.slice(0, 3).map(c => `
+            <div class="course-card">
+              <div class="course-card-thumb">
+                <img src="${c.thumbnail}" alt="${c.title}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'">
+                <span class="badge badge-primary course-card-category">${c.category}</span>
+              </div>
+              <div class="course-card-body">
+                <h3 class="course-card-title">${c.title}</h3>
+                <p class="course-card-desc">${c.description}</p>
+                <div class="course-card-meta">
+                  <span>👨‍🏫 ${c.instructor}</span>
+                  <span>⏱️ ${c.duration}</span>
+                </div>
+                <div style="margin-top: 16px; display: flex; gap: 8px;">
+                  <a href="course-details.html?id=${c._id}" class="btn btn-outline btn-sm" style="flex: 1;">Details</a>
+                  <a href="courses.html" class="btn btn-primary btn-sm">Enroll Now</a>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  </script>
+</body>
+</html>
+

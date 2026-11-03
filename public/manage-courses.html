@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Courses - Admin Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Admin Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">🎓</div>
+        <div style="font-weight: 800; font-size: 1.2rem;">Edu<span class="brand-accent">Portal</span> <span class="badge badge-purple" style="font-size: 0.65rem;">Admin</span></div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="sidebar-nav-heading">Administration</div>
+        <a href="admin-dashboard.html" class="sidebar-link">
+          <span>📊</span> Admin Overview
+        </a>
+        <a href="manage-courses.html" class="sidebar-link active">
+          <span>📚</span> Manage Courses
+        </a>
+        <a href="manage-materials.html" class="sidebar-link">
+          <span>📁</span> Notes & Videos
+        </a>
+        <a href="manage-quizzes.html" class="sidebar-link">
+          <span>🧠</span> Manage Quizzes
+        </a>
+        <a href="manage-students.html" class="sidebar-link">
+          <span>👥</span> Manage Students
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar-circle" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);">A</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-admin-name">Admin User</div>
+            <div class="user-role-label">System Administrator</div>
+          </div>
+          <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" title="Logout" style="padding: 6px;">🚪</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="dashboard-main">
+      <div class="dashboard-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <div class="page-title">Course Management</div>
+        </div>
+        <div class="topbar-right">
+          <button onclick="openCourseModal()" class="btn btn-primary btn-sm">+ Add New Course</button>
+        </div>
+      </div>
+
+      <div class="dashboard-body">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Course Catalogue Records</h2>
+            <p style="font-size: 0.88rem;">Create, update syllabus details, upload thumbnails, and manage student offerings.</p>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Thumbnail & Title</th>
+                <th>Instructor</th>
+                <th>Category</th>
+                <th>Duration & Level</th>
+                <th>Materials</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="courses-tbody">
+              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading courses...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Course Add/Edit Modal Dialog -->
+  <div class="modal-overlay" id="course-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Add New Course</h3>
+        <button class="modal-close-btn" onclick="closeCourseModal()">×</button>
+      </div>
+
+      <form id="course-form">
+        <input type="hidden" id="edit-course-id">
+
+        <div class="form-group">
+          <label class="form-label" for="course-title-input">Course Title *</label>
+          <input type="text" id="course-title-input" class="form-control" placeholder="e.g. Full-Stack Web Development" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="course-instructor-input">Instructor Name *</label>
+          <input type="text" id="course-instructor-input" class="form-control" placeholder="e.g. Dr. Angela Roberts" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="course-category-select">Category</label>
+            <select id="course-category-select" class="form-control form-select">
+              <option value="Web Development">Web Development</option>
+              <option value="Data Science">Data Science</option>
+              <option value="AI & Machine Learning">AI & Machine Learning</option>
+              <option value="Mobile Development">Mobile Development</option>
+              <option value="Cyber Security">Cyber Security</option>
+              <option value="Cloud Computing">Cloud Computing</option>
+              <option value="Programming Languages">Programming Languages</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="course-level-select">Level</label>
+            <select id="course-level-select" class="form-control form-select">
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="course-duration-input">Course Duration</label>
+          <input type="text" id="course-duration-input" class="form-control" placeholder="e.g. 8 Weeks or 40 Hours" value="6 Weeks">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="course-desc-input">Course Description *</label>
+          <textarea id="course-desc-input" class="form-control" rows="3" placeholder="Provide syllabus summary and learning objectives..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="course-thumb-input">Thumbnail Image URL</label>
+          <input type="url" id="course-thumb-input" class="form-control" placeholder="https://images.unsplash.com/...">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="course-thumb-file">Or Upload Image File (Multer)</label>
+          <input type="file" id="course-thumb-file" class="form-control" accept="image/*">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+          <button type="button" class="btn btn-outline" onclick="closeCourseModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-course-btn">Save Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    let loadedCourses = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.requireAuth('admin')) return;
+
+      const user = Auth.getUser();
+      document.getElementById('sidebar-admin-name').innerText = user.name;
+      await loadCoursesTable();
+    });
+
+    async function loadCoursesTable() {
+      try {
+        const res = await API.getCourses();
+        loadedCourses = res.data;
+        const tbody = document.getElementById('courses-tbody');
+
+        if (loadedCourses.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">No courses created yet. Click "+ Add New Course" above.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = loadedCourses.map(c => `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="${c.thumbnail}" alt="" style="width: 48px; height: 48px; border-radius: var(--radius-sm); object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'">
+                <div>
+                  <div style="font-weight: 700;">${c.title}</div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted);">${c.category}</div>
+                </div>
+              </div>
+            </td>
+            <td>${c.instructor}</td>
+            <td><span class="badge badge-primary">${c.category}</span></td>
+            <td>${c.duration} • <span class="badge badge-info" style="font-size: 0.7rem;">${c.level}</span></td>
+            <td style="font-size: 0.85rem;">
+              🎥 ${c.videoCount || 0} • 📄 ${c.noteCount || 0} • 🧠 ${c.quizCount || 0}
+            </td>
+            <td>
+              <span class="badge ${c.isAvailable ? 'badge-success' : 'badge-danger'}">
+                ${c.isAvailable ? 'Available' : 'Closed'}
+              </span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button onclick="editCourse('${c._id}')" class="btn btn-outline btn-sm">Edit</button>
+                <button onclick="deleteCourse('${c._id}', '${c.title}')" class="btn btn-danger btn-sm">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        showToast('Error loading courses: ' + err.message, 'error');
+      }
+    }
+
+    function openCourseModal(course = null) {
+      const modal = document.getElementById('course-modal');
+      const form = document.getElementById('course-form');
+      form.reset();
+
+      if (course) {
+        document.getElementById('modal-title').innerText = 'Edit Course';
+        document.getElementById('edit-course-id').value = course._id;
+        document.getElementById('course-title-input').value = course.title;
+        document.getElementById('course-instructor-input').value = course.instructor;
+        document.getElementById('course-category-select').value = course.category;
+        document.getElementById('course-level-select').value = course.level;
+        document.getElementById('course-duration-input').value = course.duration;
+        document.getElementById('course-desc-input').value = course.description;
+        document.getElementById('course-thumb-input').value = course.thumbnail || '';
+      } else {
+        document.getElementById('modal-title').innerText = 'Add New Course';
+        document.getElementById('edit-course-id').value = '';
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeCourseModal() {
+      document.getElementById('course-modal').classList.remove('active');
+    }
+
+    function editCourse(courseId) {
+      const course = loadedCourses.find(c => c._id === courseId);
+      if (course) openCourseModal(course);
+    }
+
+    async function deleteCourse(courseId, title) {
+      if (!confirm(`Are you sure you want to delete "${title}"? This will also remove its videos, notes, and quizzes!`)) {
+        return;
+      }
+
+      try {
+        await API.deleteCourse(courseId);
+        showToast('Course deleted successfully', 'success');
+        await loadCoursesTable();
+      } catch (err) {
+        showToast('Error deleting course: ' + err.message, 'error');
+      }
+    }
+
+    document.getElementById('course-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('save-course-btn');
+      saveBtn.disabled = true;
+      saveBtn.innerText = 'Saving...';
+
+      const courseId = document.getElementById('edit-course-id').value;
+      const formData = new FormData();
+      formData.append('title', document.getElementById('course-title-input').value.trim());
+      formData.append('instructor', document.getElementById('course-instructor-input').value.trim());
+      formData.append('category', document.getElementById('course-category-select').value);
+      formData.append('level', document.getElementById('course-level-select').value);
+      formData.append('duration', document.getElementById('course-duration-input').value.trim());
+      formData.append('description', document.getElementById('course-desc-input').value.trim());
+
+      const thumbUrl = document.getElementById('course-thumb-input').value.trim();
+      if (thumbUrl) formData.append('thumbnail', thumbUrl);
+
+      const fileInput = document.getElementById('course-thumb-file');
+      if (fileInput.files.length > 0) {
+        formData.append('thumbnailFile', fileInput.files[0]);
+      }
+
+      try {
+        if (courseId) {
+          await API.updateCourse(courseId, formData);
+          showToast('Course updated successfully', 'success');
+        } else {
+          await API.createCourse(formData);
+          showToast('Course created successfully', 'success');
+        }
+
+        closeCourseModal();
+        await loadCoursesTable();
+      } catch (err) {
+        showToast('Error saving course: ' + err.message, 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerText = 'Save Course';
+      }
+    });
+  </script>
+</body>
+</html>
+

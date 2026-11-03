@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - EduPortal Control Center</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Admin Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">🎓</div>
+        <div style="font-weight: 800; font-size: 1.2rem;">Edu<span class="brand-accent">Portal</span> <span class="badge badge-purple" style="font-size: 0.65rem; margin-left: 4px;">Admin</span></div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="sidebar-nav-heading">Administration</div>
+        <a href="admin-dashboard.html" class="sidebar-link active">
+          <span>📊</span> Admin Overview
+        </a>
+        <a href="manage-courses.html" class="sidebar-link">
+          <span>📚</span> Manage Courses
+        </a>
+        <a href="manage-materials.html" class="sidebar-link">
+          <span>📁</span> Notes & Videos
+        </a>
+        <a href="manage-quizzes.html" class="sidebar-link">
+          <span>🧠</span> Manage Quizzes
+        </a>
+        <a href="manage-students.html" class="sidebar-link">
+          <span>👥</span> Manage Students
+        </a>
+
+        <div class="sidebar-nav-heading" style="margin-top: 14px;">Quick Previews</div>
+        <a href="courses.html" class="sidebar-link" target="_blank">
+          <span>🌐</span> Live Course View ↗
+        </a>
+        <a href="notes.html" class="sidebar-link" target="_blank">
+          <span>📄</span> Live Notes View ↗
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar-circle" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);">A</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-admin-name">Admin User</div>
+            <div class="user-role-label">System Administrator</div>
+          </div>
+          <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" title="Logout" style="padding: 6px;">🚪</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="dashboard-main">
+      <div class="dashboard-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <div class="page-title">Admin Management Portal</div>
+        </div>
+        <div class="topbar-right">
+          <a href="manage-courses.html" class="btn btn-primary btn-sm">+ Add Course</a>
+          <button onclick="Auth.logout()" class="btn btn-outline btn-sm">Log Out</button>
+        </div>
+      </div>
+
+      <div class="dashboard-body">
+        <!-- 4 Key Admin Metrics Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-blue">👥</div>
+            <div>
+              <div class="metric-val" id="stat-students">0</div>
+              <div class="metric-title">Total Students</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-purple">📚</div>
+            <div>
+              <div class="metric-val" id="stat-courses">0</div>
+              <div class="metric-title">Total Courses</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-emerald">🎓</div>
+            <div>
+              <div class="metric-val" id="stat-enrolments">0</div>
+              <div class="metric-title">Total Enrolments</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-amber">🧠</div>
+            <div>
+              <div class="metric-val" id="stat-quizzes">0</div>
+              <div class="metric-title">Active Quizzes</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Management Navigation Hub -->
+        <div style="margin-bottom: 32px;">
+          <div class="section-header">
+            <h3 class="section-title">Curriculum & Portal Management Hub</h3>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+            <a href="manage-courses.html" class="card card-interactive" style="display: block; text-decoration: none; color: inherit;">
+              <div style="font-size: 2rem; margin-bottom: 12px;">📚</div>
+              <h4 style="margin-bottom: 6px;">Course Management</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Add new courses, modify syllabi, upload course thumbnails, and delete outdated offerings.</p>
+            </a>
+
+            <a href="manage-materials.html" class="card card-interactive" style="display: block; text-decoration: none; color: inherit;">
+              <div style="font-size: 2rem; margin-bottom: 12px;">📁</div>
+              <h4 style="margin-bottom: 6px;">Notes & Video Management</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Upload PDF lecture notes via Multer, link educational YouTube videos, and organize by topic.</p>
+            </a>
+
+            <a href="manage-quizzes.html" class="card card-interactive" style="display: block; text-decoration: none; color: inherit;">
+              <div style="font-size: 2rem; margin-bottom: 12px;">🧠</div>
+              <h4 style="margin-bottom: 6px;">Quiz Management</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Create 4-option MCQ questions, set correct options, explanations, and time limits.</p>
+            </a>
+
+            <a href="manage-students.html" class="card card-interactive" style="display: block; text-decoration: none; color: inherit;">
+              <div style="font-size: 2rem; margin-bottom: 12px;">👥</div>
+              <h4 style="margin-bottom: 6px;">Student Management</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Monitor registered students, enrolled courses, completion rates, and average quiz marks.</p>
+            </a>
+          </div>
+        </div>
+
+        <!-- Two Data Tables: Recent Enrolments & Recent Quiz Attempts -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px;" class="admin-tables-grid">
+          <!-- Recent Enrolments -->
+          <div class="card">
+            <div class="section-header">
+              <h3 class="section-title">Recent Student Enrolments</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Progress</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-enrolments-tbody">
+                  <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Loading recent enrolments...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Recent Quiz Attempts -->
+          <div class="card">
+            <div class="section-header">
+              <h3 class="section-title">Recent Quiz Submissions</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Quiz</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-quizzes-tbody">
+                  <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Loading recent quiz attempts...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <style>
+    @media (max-width: 960px) {
+      .admin-tables-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+
+  <script src="js/api.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.requireAuth('admin')) return;
+
+      const user = Auth.getUser();
+      document.getElementById('sidebar-admin-name').innerText = user.name;
+
+      try {
+        const res = await API.getAdminStats();
+        const { stats, recentEnrolments, recentQuizAttempts } = res.data;
+
+        document.getElementById('stat-students').innerText = stats.totalStudents;
+        document.getElementById('stat-courses').innerText = stats.totalCourses;
+        document.getElementById('stat-enrolments').innerText = stats.totalEnrolments;
+        document.getElementById('stat-quizzes').innerText = stats.totalQuizzes;
+
+        // Render recent enrolments
+        const enrolTbody = document.getElementById('recent-enrolments-tbody');
+        if (!recentEnrolments || recentEnrolments.length === 0) {
+          enrolTbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No enrolments yet.</td></tr>';
+        } else {
+          enrolTbody.innerHTML = recentEnrolments.map(e => `
+            <tr>
+              <td>
+                <div style="font-weight: 600;">${e.student ? e.student.name : 'Unknown'}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${e.student ? e.student.email : ''}</div>
+              </td>
+              <td>${e.course ? e.course.title : 'Deleted Course'}</td>
+              <td><span class="badge ${e.status === 'completed' ? 'badge-success' : 'badge-warning'}">${e.progressPercentage || 0}%</span></td>
+            </tr>
+          `).join('');
+        }
+
+        // Render recent quiz attempts
+        const quizTbody = document.getElementById('recent-quizzes-tbody');
+        if (!recentQuizAttempts || recentQuizAttempts.length === 0) {
+          quizTbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No quiz submissions yet.</td></tr>';
+        } else {
+          quizTbody.innerHTML = recentQuizAttempts.map(a => `
+            <tr>
+              <td>
+                <div style="font-weight: 600;">${a.student ? a.student.name : 'Unknown'}</div>
+              </td>
+              <td>${a.quiz ? a.quiz.title : 'Assessment'}</td>
+              <td>
+                <span class="badge ${a.passed ? 'badge-success' : 'badge-danger'}">
+                  ${a.percentage}%
+                </span>
+              </td>
+            </tr>
+          `).join('');
+        }
+
+      } catch (err) {
+        showToast('Error loading admin statistics: ' + err.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
+

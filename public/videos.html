@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Learning & Lessons - EduPortal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">🎓</div>
+        <span>Edu<span class="brand-accent">Portal</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="courses.html" class="nav-link">Courses</a></li>
+        <li><a href="notes.html" class="nav-link">Study Notes</a></li>
+        <li><a href="videos.html" class="nav-link active">Video Lessons</a></li>
+        <li><a href="quizzes.html" class="nav-link">Online Quizzes</a></li>
+      </ul>
+
+      <div class="nav-auth" id="navbar-auth-section"></div>
+    </div>
+  </header>
+
+  <!-- Video Learning Interface -->
+  <main style="padding: 36px 0 80px;">
+    <div class="container">
+      <!-- Course Selector Bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <span class="badge badge-primary">Interactive Classroom</span>
+          <h1 style="margin-top: 8px; font-size: 2rem;" id="active-course-heading">Educational Video Lessons</h1>
+        </div>
+
+        <div style="min-width: 280px;">
+          <select id="course-selector" class="form-control form-select" onchange="changeCourse()">
+            <option value="">Select a Course...</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Video Learning Grid -->
+      <div class="learning-layout" id="learning-grid">
+        <!-- Left: Active Video Player & Lesson Info -->
+        <div>
+          <div class="video-container" id="video-frame-container">
+            <iframe id="youtube-player" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+
+          <div class="card" style="margin-top: 20px; padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+              <div>
+                <span class="badge badge-purple" id="lesson-topic">Topic Name</span>
+                <h2 style="font-size: 1.4rem; margin: 10px 0 6px;" id="lesson-title">Lesson Title</h2>
+                <div style="font-size: 0.85rem; color: var(--text-muted);" id="lesson-meta">⏱️ Duration • Course Title</div>
+              </div>
+
+              <div id="completion-button-container">
+                <button id="mark-complete-btn" class="btn btn-primary" onclick="markCurrentLessonComplete()">
+                  <span>✔️</span> Mark Lesson Completed
+                </button>
+              </div>
+            </div>
+
+            <p style="margin-top: 18px; line-height: 1.6;" id="lesson-desc">
+              Lesson details and overview.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: Course Playlist & Progress Tracker -->
+        <div>
+          <div class="playlist-sidebar">
+            <div class="playlist-header">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Course Lessons</span>
+                <span class="badge badge-info" id="playlist-count">0 Lessons</span>
+              </div>
+              <div style="margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 4px;">
+                  <span>Progress</span>
+                  <span id="playlist-progress-text">0%</span>
+                </div>
+                <div class="progress-container" style="height: 6px;">
+                  <div class="progress-bar" id="playlist-progress-bar" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="playlist-items" id="playlist-items-container">
+              <!-- Dynamically populated lessons -->
+              <p style="padding: 20px; text-align: center; color: var(--text-muted);">Select a course to view lessons.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 EduPortal E-Learning Management System. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    let currentVideos = [];
+    let activeVideo = null;
+    let selectedCourseId = '';
+
+    async function initVideoPage() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramCourseId = urlParams.get('courseId');
+      const paramVideoId = urlParams.get('videoId');
+
+      try {
+        const coursesRes = await API.getCourses();
+        const selector = document.getElementById('course-selector');
+        
+        coursesRes.data.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c._id;
+          opt.textContent = c.title;
+          selector.appendChild(opt);
+        });
+
+        if (paramCourseId) {
+          selector.value = paramCourseId;
+          selectedCourseId = paramCourseId;
+        } else if (coursesRes.data.length > 0) {
+          selector.value = coursesRes.data[0]._id;
+          selectedCourseId = coursesRes.data[0]._id;
+        }
+
+        await loadVideosForCourse(selectedCourseId, paramVideoId);
+      } catch (err) {
+        showToast('Error loading courses for videos: ' + err.message, 'error');
+      }
+    }
+
+    async function loadVideosForCourse(courseId, targetVideoId = null) {
+      if (!courseId) return;
+
+      try {
+        const res = await API.getVideos(`?courseId=${courseId}`);
+        currentVideos = res.data;
+
+        // Update heading
+        const sel = document.getElementById('course-selector');
+        const selectedText = sel.options[sel.selectedIndex].text;
+        document.getElementById('active-course-heading').innerText = selectedText;
+
+        if (currentVideos.length === 0) {
+          document.getElementById('playlist-items-container').innerHTML = `
+            <div style="padding: 30px; text-align: center; color: var(--text-muted);">
+              <p>No video lessons found for this course yet.</p>
+            </div>
+          `;
+          document.getElementById('youtube-player').src = '';
+          document.getElementById('lesson-title').innerText = 'No Video Available';
+          document.getElementById('lesson-desc').innerText = '';
+          return;
+        }
+
+        renderPlaylist();
+
+        let initialVideo = currentVideos[0];
+        if (targetVideoId) {
+          const matched = currentVideos.find(v => v._id === targetVideoId);
+          if (matched) initialVideo = matched;
+        }
+
+        selectVideo(initialVideo._id);
+      } catch (err) {
+        showToast('Error loading video lessons: ' + err.message, 'error');
+      }
+    }
+
+    function renderPlaylist() {
+      const container = document.getElementById('playlist-items-container');
+      document.getElementById('playlist-count').innerText = `${currentVideos.length} Lessons`;
+
+      const completedCount = currentVideos.filter(v => v.isCompleted).length;
+      const pct = Math.round((completedCount / currentVideos.length) * 100);
+      document.getElementById('playlist-progress-text').innerText = `${pct}% (${completedCount}/${currentVideos.length})`;
+      document.getElementById('playlist-progress-bar').style.width = `${pct}%`;
+
+      container.innerHTML = currentVideos.map((v, i) => `
+        <div class="playlist-item ${activeVideo && activeVideo._id === v._id ? 'active' : ''}" onclick="selectVideo('${v._id}')">
+          <div style="font-size: 1.2rem;">
+            ${v.isCompleted ? '✅' : '▶️'}
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${i + 1}. ${v.title}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
+              ⏱️ ${v.duration} • ${v.topic}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectVideo(videoId) {
+      activeVideo = currentVideos.find(v => v._id === videoId);
+      if (!activeVideo) return;
+
+      renderPlaylist();
+
+      // Embed YouTube
+      const ytIframe = document.getElementById('youtube-player');
+      ytIframe.src = `https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=0&rel=0`;
+
+      document.getElementById('lesson-title').innerText = activeVideo.title;
+      document.getElementById('lesson-topic').innerText = activeVideo.topic;
+      document.getElementById('lesson-meta').innerText = `⏱️ Duration: ${activeVideo.duration}`;
+      document.getElementById('lesson-desc').innerText = activeVideo.description || 'Watch the lecture video above, take notes, and mark completed when finished.';
+
+      updateCompletionButton();
+    }
+
+    function updateCompletionButton() {
+      const container = document.getElementById('completion-button-container');
+      if (!Auth.isLoggedIn()) {
+        container.innerHTML = `
+          <a href="login.html?redirect=${encodeURIComponent(window.location.href)}" class="btn btn-outline btn-sm">
+            Log in to save progress
+          </a>
+        `;
+        return;
+      }
+
+      if (activeVideo.isCompleted) {
+        container.innerHTML = `
+          <button class="btn btn-sm" style="background: var(--success-bg); color: #065f46; border: 1px solid #a7f3d0; cursor: default;">
+            ✅ Completed
+          </button>
+        `;
+      } else {
+        container.innerHTML = `
+          <button id="mark-complete-btn" class="btn btn-primary btn-sm" onclick="markCurrentLessonComplete()">
+            ✔️ Mark Completed
+          </button>
+        `;
+      }
+    }
+
+    async function markCurrentLessonComplete() {
+      if (!activeVideo) return;
+
+      if (!Auth.isLoggedIn()) {
+        showToast('Please log in to track your course progress', 'warning');
+        return;
+      }
+
+      try {
+        const btn = document.getElementById('mark-complete-btn');
+        if (btn) btn.disabled = true;
+
+        const res = await API.markLessonComplete(activeVideo._id);
+        activeVideo.isCompleted = true;
+        showToast(res.message || 'Lesson completed! Course progress updated.', 'success');
+        renderPlaylist();
+        updateCompletionButton();
+      } catch (err) {
+        showToast('Error marking lesson complete: ' + err.message, 'error');
+      }
+    }
+
+    function changeCourse() {
+      const sel = document.getElementById('course-selector');
+      selectedCourseId = sel.value;
+      loadVideosForCourse(selectedCourseId);
+    }
+
+    document.addEventListener('DOMContentLoaded', initVideoPage);
+  </script>
+</body>
+</html>
+

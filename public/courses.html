@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Catalogue - EduPortal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">🎓</div>
+        <span>Edu<span class="brand-accent">Portal</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="courses.html" class="nav-link active">Courses</a></li>
+        <li><a href="notes.html" class="nav-link">Study Notes</a></li>
+        <li><a href="videos.html" class="nav-link">Video Lessons</a></li>
+        <li><a href="quizzes.html" class="nav-link">Online Quizzes</a></li>
+      </ul>
+
+      <div class="nav-auth" id="navbar-auth-section"></div>
+    </div>
+  </header>
+
+  <!-- Main Catalogue Content -->
+  <main style="padding: 40px 0 80px;">
+    <div class="container">
+      <!-- Header -->
+      <div style="margin-bottom: 32px;">
+        <span class="badge badge-primary">Comprehensive Curriculum</span>
+        <h1 style="margin-top: 10px; font-size: 2.2rem;">Course Catalogue</h1>
+        <p>Explore college-accredited courses, enroll with a single click, and unlock all study notes and videos.</p>
+      </div>
+
+      <!-- Search & Category Filter Bar -->
+      <div class="filter-bar">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="course-search" class="form-control search-input" placeholder="Search by course title, keywords, or instructor...">
+        </div>
+
+        <div style="min-width: 200px;">
+          <select id="category-filter" class="form-control form-select">
+            <option value="All">All Categories</option>
+            <option value="Web Development">Web Development</option>
+            <option value="Data Science">Data Science</option>
+            <option value="AI & Machine Learning">AI & Machine Learning</option>
+            <option value="Mobile Development">Mobile Development</option>
+            <option value="Cyber Security">Cyber Security</option>
+            <option value="Cloud Computing">Cloud Computing</option>
+            <option value="Programming Languages">Programming Languages</option>
+          </select>
+        </div>
+
+        <div style="min-width: 160px;">
+          <select id="level-filter" class="form-control form-select">
+            <option value="All">All Levels</option>
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Courses Grid -->
+      <div class="grid-cards" id="courses-container">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px;">
+          <p>Loading course catalogue...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 EduPortal E-Learning Management System. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    let allCourses = [];
+
+    async function fetchCourses() {
+      const search = document.getElementById('course-search').value.trim();
+      const category = document.getElementById('category-filter').value;
+      const level = document.getElementById('level-filter').value;
+
+      let queryParams = [];
+      if (search) queryParams.push(`search=${encodeURIComponent(search)}`);
+      if (category !== 'All') queryParams.push(`category=${encodeURIComponent(category)}`);
+      if (level !== 'All') queryParams.push(`level=${encodeURIComponent(level)}`);
+
+      const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+
+      try {
+        const res = await API.getCourses(queryString);
+        allCourses = res.data;
+        renderCourses(allCourses);
+      } catch (err) {
+        showToast('Error loading courses: ' + err.message, 'error');
+      }
+    }
+
+    function renderCourses(courses) {
+      const container = document.getElementById('courses-container');
+      if (!courses || courses.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px; background: white; border-radius: var(--radius-lg); border: 1px dashed var(--border-color);">
+            <div style="font-size: 3rem; margin-bottom: 12px;">🔍</div>
+            <h3>No courses found</h3>
+            <p style="margin-top: 6px;">Try adjusting your search criteria or category filter.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = courses.map(course => {
+        const isEnrolled = course.isEnrolled;
+        return `
+          <div class="course-card">
+            <div class="course-card-thumb">
+              <img src="${course.thumbnail}" alt="${course.title}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'">
+              <span class="badge badge-primary course-card-category">${course.category}</span>
+            </div>
+            <div class="course-card-body">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span class="badge ${course.level === 'Beginner' ? 'badge-info' : (course.level === 'Intermediate' ? 'badge-warning' : 'badge-purple')}" style="font-size: 0.72rem;">
+                  ${course.level}
+                </span>
+                <span class="badge ${course.isAvailable ? 'badge-success' : 'badge-danger'}" style="font-size: 0.72rem;">
+                  ${course.isAvailable ? '● Available' : 'Closed'}
+                </span>
+              </div>
+
+              <h3 class="course-card-title">${course.title}</h3>
+              <p class="course-card-desc">${course.description}</p>
+
+              <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px; display: flex; gap: 14px;">
+                <span>🎥 ${course.videoCount || 0} Lessons</span>
+                <span>📄 ${course.noteCount || 0} Notes</span>
+                <span>🧠 ${course.quizCount || 0} Quizzes</span>
+              </div>
+
+              <div class="course-card-meta">
+                <span>👨‍🏫 ${course.instructor}</span>
+                <span>⏱️ ${course.duration}</span>
+              </div>
+
+              <div style="margin-top: 18px; display: flex; gap: 10px;">
+                <a href="course-details.html?id=${course._id}" class="btn btn-outline btn-sm" style="flex: 1;">
+                  Course Details
+                </a>
+                ${isEnrolled ? `
+                  <a href="videos.html?courseId=${course._id}" class="btn btn-gradient btn-sm">
+                    ▶️ Enrolled (${course.progress || 0}%)
+                  </a>
+                ` : `
+                  <button onclick="handleEnroll('${course._id}')" class="btn btn-primary btn-sm" ${!course.isAvailable ? 'disabled' : ''}>
+                    Enroll Now
+                  </button>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function handleEnroll(courseId) {
+      if (!Auth.isLoggedIn()) {
+        showToast('Please log in or register to enroll in courses', 'warning');
+        setTimeout(() => {
+          window.location.href = `login.html?redirect=courses.html`;
+        }, 1000);
+        return;
+      }
+
+      try {
+        const res = await API.enrollCourse(courseId);
+        showToast(res.message || 'Successfully enrolled in course!', 'success');
+        fetchCourses(); // re-fetch to update button state
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Event Listeners for Filters
+    let debounceTimer;
+    document.getElementById('course-search').addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(fetchCourses, 300);
+    });
+    document.getElementById('category-filter').addEventListener('change', fetchCourses);
+    document.getElementById('level-filter').addEventListener('change', fetchCourses);
+
+    document.addEventListener('DOMContentLoaded', fetchCourses);
+  </script>
+</body>
+</html>
+

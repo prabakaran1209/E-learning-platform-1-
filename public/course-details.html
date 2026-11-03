@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Details - EduPortal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .course-hero {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      padding: 60px 0;
+    }
+    .course-hero p { color: #cbd5e1; }
+    .course-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 36px;
+      margin-top: -40px;
+    }
+    @media (max-width: 900px) {
+      .course-layout { grid-template-columns: 1fr; margin-top: 20px; }
+    }
+    .tab-btn {
+      padding: 12px 20px;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">🎓</div>
+        <span>Edu<span class="brand-accent">Portal</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="courses.html" class="nav-link active">Courses</a></li>
+        <li><a href="notes.html" class="nav-link">Study Notes</a></li>
+        <li><a href="videos.html" class="nav-link">Video Lessons</a></li>
+        <li><a href="quizzes.html" class="nav-link">Online Quizzes</a></li>
+      </ul>
+
+      <div class="nav-auth" id="navbar-auth-section"></div>
+    </div>
+  </header>
+
+  <!-- Course Hero Banner -->
+  <section class="course-hero">
+    <div class="container">
+      <div style="max-width: 800px;">
+        <span class="badge badge-primary" id="course-category" style="background: rgba(37,99,235,0.3); color: #93c5fd;">Category</span>
+        <h1 style="color: white; margin: 14px 0 16px; font-size: 2.5rem;" id="course-title">Course Title</h1>
+        <p style="font-size: 1.1rem; line-height: 1.6;" id="course-desc">Course Description</p>
+
+        <div style="display: flex; gap: 24px; margin-top: 24px; flex-wrap: wrap; font-size: 0.95rem;">
+          <span>👨‍🏫 Instructor: <strong id="course-instructor" style="color: white;">-</strong></span>
+          <span>⏱️ Duration: <strong id="course-duration" style="color: white;">-</strong></span>
+          <span>📊 Level: <strong id="course-level" style="color: white;">-</strong></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Details & Materials Layout -->
+  <main style="padding-bottom: 80px;">
+    <div class="container">
+      <div class="course-layout">
+        <!-- Left: Course Content & Learning Modules -->
+        <div>
+          <!-- Tab Navigation -->
+          <div style="display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px;">
+            <button class="tab-btn active" onclick="switchTab('videos')">🎥 Video Lessons (<span id="count-videos">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('notes')">📄 PDF Study Notes (<span id="count-notes">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('quizzes')">🧠 Quizzes (<span id="count-quizzes">0</span>)</button>
+          </div>
+
+          <!-- Video Lessons Tab -->
+          <div id="tab-videos" class="tab-content">
+            <div id="videos-list" style="display: flex; flex-direction: column; gap: 14px;">
+              <p>Loading course videos...</p>
+            </div>
+          </div>
+
+          <!-- Notes Tab -->
+          <div id="tab-notes" class="tab-content" style="display: none;">
+            <div id="notes-list" style="display: flex; flex-direction: column; gap: 14px;">
+              <p>Loading course notes...</p>
+            </div>
+          </div>
+
+          <!-- Quizzes Tab -->
+          <div id="tab-quizzes" class="tab-content" style="display: none;">
+            <div id="quizzes-list" style="display: flex; flex-direction: column; gap: 14px;">
+              <p>Loading course quizzes...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Enrollment & Sidebar Card -->
+        <div>
+          <div class="card" style="position: sticky; top: 96px; padding: 28px;">
+            <div style="border-radius: var(--radius-md); overflow: hidden; height: 180px; margin-bottom: 20px;">
+              <img id="course-thumb" src="" alt="Course Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+
+            <div id="enrollment-action-box" style="margin-bottom: 20px;">
+              <!-- Dynamic Enroll or Continue Learning Button -->
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 18px; display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Enrollment Status</span>
+                <span id="enroll-badge" class="badge badge-info">Open</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Total Materials</span>
+                <span id="total-materials-count">0 items</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Certificate</span>
+                <span style="font-weight: 600;">Available on 100%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 EduPortal E-Learning Management System. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    let currentCourse = null;
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.getElementById('tab-videos').style.display = tabName === 'videos' ? 'block' : 'none';
+      document.getElementById('tab-notes').style.display = tabName === 'notes' ? 'block' : 'none';
+      document.getElementById('tab-quizzes').style.display = tabName === 'quizzes' ? 'block' : 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const courseId = urlParams.get('id');
+
+      if (!courseId) {
+        showToast('No course ID specified', 'error');
+        setTimeout(() => window.location.href = 'courses.html', 1000);
+        return;
+      }
+
+      try {
+        const res = await API.getCourse(courseId);
+        currentCourse = res.data;
+        renderCourseDetails(currentCourse);
+      } catch (err) {
+        showToast('Error loading course details: ' + err.message, 'error');
+      }
+    });
+
+    function renderCourseDetails(c) {
+      document.title = `${c.title} - EduPortal`;
+      document.getElementById('course-title').innerText = c.title;
+      document.getElementById('course-desc').innerText = c.description;
+      document.getElementById('course-category').innerText = c.category;
+      document.getElementById('course-instructor').innerText = c.instructor;
+      document.getElementById('course-duration').innerText = c.duration;
+      document.getElementById('course-level').innerText = c.level;
+      document.getElementById('course-thumb').src = c.thumbnail;
+
+      const videos = c.videos || [];
+      const notes = c.notes || [];
+      const quizzes = c.quizzes || [];
+
+      document.getElementById('count-videos').innerText = videos.length;
+      document.getElementById('count-notes').innerText = notes.length;
+      document.getElementById('count-quizzes').innerText = quizzes.length;
+      document.getElementById('total-materials-count').innerText = `${videos.length + notes.length} modules`;
+
+      // Enrollment Action Box
+      const actionBox = document.getElementById('enrollment-action-box');
+      if (c.isEnrolled) {
+        actionBox.innerHTML = `
+          <div style="padding: 12px; background: var(--success-bg); border-radius: var(--radius-md); text-align: center; margin-bottom: 12px;">
+            <div style="font-weight: 700; color: #065f46;">✅ You are enrolled!</div>
+            <div style="font-size: 0.8rem; color: #047857; margin-top: 4px;">Progress: ${c.enrolment ? c.enrolment.progressPercentage : 0}%</div>
+          </div>
+          <a href="videos.html?courseId=${c._id}" class="btn btn-primary" style="width: 100%;">
+            ▶️ Go To Lessons
+          </a>
+        `;
+        document.getElementById('enroll-badge').className = 'badge badge-success';
+        document.getElementById('enroll-badge').innerText = 'Enrolled';
+      } else {
+        actionBox.innerHTML = `
+          <button onclick="handleEnroll('${c._id}')" class="btn btn-primary" style="width: 100%; padding: 14px;">
+            Enroll in This Course
+          </button>
+        `;
+      }
+
+      // Render Videos
+      const videosContainer = document.getElementById('videos-list');
+      if (videos.length === 0) {
+        videosContainer.innerHTML = '<p style="padding: 20px; color: var(--text-muted);">No video lessons uploaded yet for this course.</p>';
+      } else {
+        videosContainer.innerHTML = videos.map((v, i) => `
+          <div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-weight: 700; display: flex; align-items: center; justify-content: center;">
+                ${i + 1}
+              </div>
+              <div>
+                <h4 style="font-size: 1rem; margin-bottom: 4px;">${v.title}</h4>
+                <div style="font-size: 0.82rem; color: var(--text-muted);">Topic: ${v.topic} • ⏱️ ${v.duration}</div>
+              </div>
+            </div>
+            <a href="videos.html?courseId=${c._id}&videoId=${v._id}" class="btn btn-outline btn-sm">
+              Watch Lesson
+            </a>
+          </div>
+        `).join('');
+      }
+
+      // Render Notes
+      const notesContainer = document.getElementById('notes-list');
+      if (notes.length === 0) {
+        notesContainer.innerHTML = '<p style="padding: 20px; color: var(--text-muted);">No PDF study notes available yet for this course.</p>';
+      } else {
+        notesContainer.innerHTML = notes.map(n => `
+          <div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div style="font-size: 2rem;">📄</div>
+              <div>
+                <h4 style="font-size: 1rem; margin-bottom: 4px;">${n.title}</h4>
+                <div style="font-size: 0.82rem; color: var(--text-muted);">Subject: ${n.subject} • Topic: ${n.topic} • Size: ${n.fileSize}</div>
+              </div>
+            </div>
+            <a href="${n.fileUrl}" target="_blank" download class="btn btn-primary btn-sm">
+              ⬇️ Download PDF
+            </a>
+          </div>
+        `).join('');
+      }
+
+      // Render Quizzes
+      const quizzesContainer = document.getElementById('quizzes-list');
+      if (quizzes.length === 0) {
+        quizzesContainer.innerHTML = '<p style="padding: 20px; color: var(--text-muted);">No quizzes available yet for this course.</p>';
+      } else {
+        quizzesContainer.innerHTML = quizzes.map(q => `
+          <div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div style="font-size: 2rem;">🧠</div>
+              <div>
+                <h4 style="font-size: 1rem; margin-bottom: 4px;">${q.title}</h4>
+                <div style="font-size: 0.82rem; color: var(--text-muted);">⏱️ ${q.timeLimitMinutes} Mins • Total Marks: ${q.totalMarks}</div>
+              </div>
+            </div>
+            <a href="quizzes.html?quizId=${q._id}" class="btn btn-primary btn-sm">
+              Start Quiz
+            </a>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function handleEnroll(courseId) {
+      if (!Auth.isLoggedIn()) {
+        showToast('Please log in or register to enroll', 'warning');
+        setTimeout(() => window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`, 800);
+        return;
+      }
+
+      try {
+        const res = await API.enrollCourse(courseId);
+        showToast(res.message || 'Enrolled successfully!', 'success');
+        setTimeout(() => window.location.reload(), 600);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
+

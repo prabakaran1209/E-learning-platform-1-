@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Enrolled Courses - EduPortal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">🎓</div>
+        <div style="font-weight: 800; font-size: 1.2rem;">Edu<span class="brand-accent">Portal</span></div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="sidebar-nav-heading">Student Menu</div>
+        <a href="student-dashboard.html" class="sidebar-link">
+          <span>📊</span> Dashboard
+        </a>
+        <a href="enrolments.html" class="sidebar-link active">
+          <span>🎓</span> My Enrolments
+        </a>
+        <a href="courses.html" class="sidebar-link">
+          <span>📚</span> Course Catalogue
+        </a>
+        <a href="notes.html" class="sidebar-link">
+          <span>📄</span> Study Notes
+        </a>
+        <a href="videos.html" class="sidebar-link">
+          <span>🎥</span> Video Learning
+        </a>
+        <a href="quizzes.html" class="sidebar-link">
+          <span>🧠</span> Online Quizzes
+        </a>
+        <a href="progress.html" class="sidebar-link">
+          <span>📈</span> Learning Progress
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar-circle" id="sidebar-avatar">U</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Student Name</div>
+            <div class="user-role-label">Enrolled Student</div>
+          </div>
+          <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" title="Logout" style="padding: 6px;">🚪</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="dashboard-main">
+      <div class="dashboard-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <div class="page-title">My Enrolled Courses</div>
+        </div>
+        <div class="topbar-right">
+          <a href="courses.html" class="btn btn-primary btn-sm">+ Enroll in More Courses</a>
+        </div>
+      </div>
+
+      <div class="dashboard-body">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Enrolled Curriculum</h2>
+            <p style="font-size: 0.9rem;">Review your courses, check completion percentages, and dive into lectures.</p>
+          </div>
+        </div>
+
+        <div id="enrolments-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px;">
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px;">
+            <p>Loading your enrolled courses...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.requireAuth()) return;
+
+      const user = Auth.getUser();
+      document.getElementById('sidebar-user-name').innerText = user.name;
+      document.getElementById('sidebar-avatar').innerText = user.name.charAt(0).toUpperCase();
+
+      try {
+        const res = await API.getMyEnrolments();
+        const enrolments = res.data || [];
+        const container = document.getElementById('enrolments-container');
+
+        if (enrolments.length === 0) {
+          container.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px; background: white; border-radius: var(--radius-lg); border: 1px dashed var(--border-color);">
+              <div style="font-size: 3rem; margin-bottom: 12px;">📚</div>
+              <h3>No Active Enrolments Found</h3>
+              <p style="margin: 8px 0 24px;">You haven't enrolled in any courses yet. Browse our catalogue to get started.</p>
+              <a href="courses.html" class="btn btn-primary">Browse Course Catalogue</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = enrolments.map(e => {
+          const course = e.course;
+          const enrolledDate = new Date(e.enrolledAt).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          });
+
+          return `
+            <div class="course-card">
+              <div class="course-card-thumb" style="height: 160px;">
+                <img src="${course.thumbnail}" alt="${course.title}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'">
+                <span class="badge badge-primary course-card-category">${course.category}</span>
+              </div>
+              <div class="course-card-body">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span class="badge ${e.status === 'completed' ? 'badge-success' : 'badge-warning'}" style="font-size: 0.72rem;">
+                    ${e.status === 'completed' ? 'Completed' : 'Active'}
+                  </span>
+                  <span style="font-size: 0.78rem; color: var(--text-muted);">Enrolled: ${enrolledDate}</span>
+                </div>
+
+                <h3 class="course-card-title">${course.title}</h3>
+
+                <!-- Progress Bar -->
+                <div style="margin: 14px 0 16px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
+                    <span style="font-weight: 600;">Learning Progress</span>
+                    <strong style="color: var(--primary);">${e.progressPercentage || 0}%</strong>
+                  </div>
+                  <div class="progress-container">
+                    <div class="progress-bar" style="width: ${e.progressPercentage || 0}%;"></div>
+                  </div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">
+                    ${e.completedVideosCount || 0} of ${e.totalVideos || 0} video lessons finished
+                  </div>
+                </div>
+
+                <div class="course-card-meta" style="margin-bottom: 16px;">
+                  <span>👨‍🏫 ${course.instructor}</span>
+                  <span>⏱️ ${course.duration}</span>
+                </div>
+
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <a href="videos.html?courseId=${course._id}" class="btn btn-primary btn-sm" style="flex: 1;">
+                    ▶️ Watch Lessons
+                  </a>
+                  <a href="notes.html?courseId=${course._id}" class="btn btn-outline btn-sm">
+                    📄 Notes
+                  </a>
+                  <a href="quizzes.html?courseId=${course._id}" class="btn btn-outline btn-sm">
+                    🧠 Quizzes
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        showToast('Error loading enrolments: ' + err.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
+

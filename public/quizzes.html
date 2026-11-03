@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Quizzes & Assessments - EduPortal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">🎓</div>
+        <span>Edu<span class="brand-accent">Portal</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="courses.html" class="nav-link">Courses</a></li>
+        <li><a href="notes.html" class="nav-link">Study Notes</a></li>
+        <li><a href="videos.html" class="nav-link">Video Lessons</a></li>
+        <li><a href="quizzes.html" class="nav-link active">Online Quizzes</a></li>
+      </ul>
+
+      <div class="nav-auth" id="navbar-auth-section"></div>
+    </div>
+  </header>
+
+  <!-- Main Quiz Container -->
+  <main style="padding: 40px 0 80px;">
+    <div class="container">
+
+      <!-- VIEW 1: Quiz Catalogue & History (Shown when no ?quizId) -->
+      <div id="quiz-list-view">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <span class="badge badge-purple">Knowledge Assessment</span>
+            <h1 style="margin-top: 10px; font-size: 2.2rem;">Online Quizzes & Tests</h1>
+            <p>Test your conceptual understanding with automated multiple-choice evaluations and instant scoring.</p>
+          </div>
+          <div id="admin-quiz-btn" style="display: none;">
+            <a href="manage-quizzes.html" class="btn btn-primary btn-sm">
+              <span>➕</span> Create New Quiz
+            </a>
+          </div>
+        </div>
+
+        <div class="grid-cards" id="quizzes-grid">
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px;">
+            <p>Loading quizzes...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: Active Quiz Taking Engine (Shown when ?quizId present) -->
+      <div id="quiz-engine-view" style="display: none;" class="quiz-container">
+        <!-- Quiz Header & Timer Bar -->
+        <div class="card" style="margin-bottom: 24px; padding: 20px 28px; background: white; border-color: #cbd5e1; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <span class="badge badge-primary" id="taking-quiz-course">Course Title</span>
+            <h2 style="font-size: 1.4rem; margin-top: 6px;" id="taking-quiz-title">Quiz Title</h2>
+          </div>
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 8px 16px; border-radius: var(--radius-full); font-weight: 700; color: #dc2626; display: flex; align-items: center; gap: 8px;">
+              <span>⏳</span> Time Remaining: <span id="quiz-timer">15:00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question Counter & Stepper Bar -->
+        <div style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">
+            <span id="question-progress-label">Question 1 of 5</span>
+            <span id="answered-counter-label">0 Answered</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar" id="stepper-progress-bar" style="width: 20%;"></div>
+          </div>
+        </div>
+
+        <!-- Question Body Form -->
+        <form id="quiz-submission-form">
+          <div id="questions-wrapper">
+            <!-- Questions rendered here -->
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px;">
+            <a href="quizzes.html" class="btn btn-outline" onclick="return confirm('Are you sure you want to exit the quiz? Unsaved answers will be lost.')">
+              ← Cancel Quiz
+            </a>
+            <button type="submit" class="btn btn-gradient btn-lg" id="submit-quiz-btn">
+              Submit Answers & View Score 🎯
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 EduPortal E-Learning Management System. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    let activeQuiz = null;
+    let studentAnswers = {};
+    let timerInterval = null;
+
+    async function initQuizzes() {
+      if (Auth.isAdmin()) {
+        const btn = document.getElementById('admin-quiz-btn');
+        if (btn) btn.style.display = 'block';
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const quizId = urlParams.get('quizId');
+
+      if (quizId) {
+        document.getElementById('quiz-list-view').style.display = 'none';
+        document.getElementById('quiz-engine-view').style.display = 'block';
+        await loadQuizForTaking(quizId);
+      } else {
+        document.getElementById('quiz-list-view').style.display = 'block';
+        document.getElementById('quiz-engine-view').style.display = 'none';
+        await loadQuizList();
+      }
+    }
+
+    async function loadQuizList() {
+      try {
+        const res = await API.getQuizzes();
+        const container = document.getElementById('quizzes-grid');
+
+        if (!res.data || res.data.length === 0) {
+          container.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px; background: white; border-radius: var(--radius-lg); border: 1px dashed var(--border-color);">
+              <div style="font-size: 3rem; margin-bottom: 12px;">🧠</div>
+              <h3>No Quizzes Available Yet</h3>
+              <p style="margin-top: 6px;">Check back soon for new assessments.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = res.data.map(q => {
+          const hasAttempt = q.latestAttempt;
+          return `
+            <div class="card card-interactive" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                  <span class="badge badge-purple" style="font-size: 0.72rem;">${q.course ? q.course.title : 'General'}</span>
+                  <span class="badge badge-info" style="font-size: 0.72rem;">⏱️ ${q.timeLimitMinutes} Mins</span>
+                </div>
+
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">${q.title}</h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 16px;">${q.description || 'Test your knowledge on this syllabus topic with multiple choice questions.'}</p>
+                
+                <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
+                  <span>❓ ${q.totalQuestions || (q.questions ? q.questions.length : 0)} Questions</span> • 
+                  <span>🎯 Pass: ${q.passingPercentage || 60}%</span>
+                </div>
+              </div>
+
+              <div style="border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: 12px;">
+                ${hasAttempt ? `
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.82rem;">
+                    <span>Last Attempt Score:</span>
+                    <strong class="${hasAttempt.passed ? 'badge badge-success' : 'badge badge-danger'}">${hasAttempt.percentage}% (${hasAttempt.passed ? 'Passed' : 'Failed'})</strong>
+                  </div>
+                  <div style="display: flex; gap: 8px;">
+                    <a href="quiz-result.html?attemptId=${hasAttempt._id}" class="btn btn-outline btn-sm" style="flex: 1;">View Result</a>
+                    <a href="quizzes.html?quizId=${q._id}" class="btn btn-primary btn-sm" style="flex: 1;">Retake Quiz</a>
+                  </div>
+                ` : `
+                  <a href="quizzes.html?quizId=${q._id}" class="btn btn-primary btn-sm" style="width: 100%;">
+                    Start Quiz Now 🚀
+                  </a>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        showToast('Error loading quizzes: ' + err.message, 'error');
+      }
+    }
+
+    async function loadQuizForTaking(quizId) {
+      if (!Auth.requireAuth()) return;
+
+      try {
+        const res = await API.getQuiz(quizId);
+        activeQuiz = res.data;
+
+        document.getElementById('taking-quiz-title').innerText = activeQuiz.title;
+        document.getElementById('taking-quiz-course').innerText = activeQuiz.course ? activeQuiz.course.title : 'Course Assessment';
+
+        renderQuizQuestions(activeQuiz.questions);
+        startTimer(activeQuiz.timeLimitMinutes || 15);
+      } catch (err) {
+        showToast('Error loading quiz: ' + err.message, 'error');
+      }
+    }
+
+    function renderQuizQuestions(questions) {
+      const wrapper = document.getElementById('questions-wrapper');
+      studentAnswers = {};
+
+      document.getElementById('question-progress-label').innerText = `1 to ${questions.length} Questions`;
+      document.getElementById('answered-counter-label').innerText = `0 of ${questions.length} answered`;
+
+      wrapper.innerHTML = questions.map((q, idx) => `
+        <div class="quiz-question-card" id="q-card-${idx}">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span class="badge badge-primary" style="font-size: 0.75rem;">Question ${idx + 1} of ${questions.length}</span>
+            <span id="status-pill-${idx}" class="badge badge-warning" style="font-size: 0.72rem;">Pending</span>
+          </div>
+
+          <h3 class="question-text">${idx + 1}. ${q.questionText}</h3>
+
+          <div class="quiz-options">
+            ${q.options.map((opt, optIdx) => `
+              <label class="quiz-option-label" id="label-${idx}-${optIdx}">
+                <input type="radio" name="question_${idx}" value="${optIdx}" onchange="selectOption(${idx}, ${optIdx})" style="width: 18px; height: 18px; accent-color: var(--primary);">
+                <span>${opt}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectOption(qIdx, optIdx) {
+      studentAnswers[qIdx] = optIdx;
+
+      // Update styles
+      for (let i = 0; i < 4; i++) {
+        const lbl = document.getElementById(`label-${qIdx}-${i}`);
+        if (lbl) {
+          if (i === optIdx) {
+            lbl.classList.add('selected');
+          } else {
+            lbl.classList.remove('selected');
+          }
+        }
+      }
+
+      const pill = document.getElementById(`status-pill-${qIdx}`);
+      if (pill) {
+        pill.className = 'badge badge-success';
+        pill.innerText = 'Answered';
+      }
+
+      // Update counters
+      const totalAnswered = Object.keys(studentAnswers).length;
+      const totalQ = activeQuiz.questions.length;
+      document.getElementById('answered-counter-label').innerText = `${totalAnswered} of ${totalQ} answered`;
+      const pct = Math.round((totalAnswered / totalQ) * 100);
+      document.getElementById('stepper-progress-bar').style.width = `${pct}%`;
+    }
+
+    function startTimer(durationMinutes) {
+      let remainingSeconds = durationMinutes * 60;
+      const timerElement = document.getElementById('quiz-timer');
+
+      timerInterval = setInterval(() => {
+        remainingSeconds--;
+        if (remainingSeconds <= 0) {
+          clearInterval(timerInterval);
+          showToast('Time is up! Submitting answers automatically...', 'warning');
+          submitQuizAnswers();
+          return;
+        }
+
+        const mins = Math.floor(remainingSeconds / 60);
+        const secs = remainingSeconds % 60;
+        timerElement.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    document.getElementById('quiz-submission-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const totalQ = activeQuiz.questions.length;
+      const totalAnswered = Object.keys(studentAnswers).length;
+
+      if (totalAnswered < totalQ) {
+        if (!confirm(`You have only answered ${totalAnswered} of ${totalQ} questions. Are you sure you want to submit?`)) {
+          return;
+        }
+      }
+
+      await submitQuizAnswers();
+    });
+
+    async function submitQuizAnswers() {
+      clearInterval(timerInterval);
+      const submitBtn = document.getElementById('submit-quiz-btn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Evaluating score...';
+      }
+
+      const answersArray = activeQuiz.questions.map((q, idx) => ({
+        questionIndex: idx,
+        selectedOption: studentAnswers[idx] !== undefined ? studentAnswers[idx] : -1
+      }));
+
+      try {
+        const res = await API.submitQuiz(activeQuiz._id, answersArray);
+        showToast('Quiz evaluated! Redirecting to results...', 'success');
+        setTimeout(() => {
+          window.location.href = `quiz-result.html?attemptId=${res.result.attemptId}`;
+        }, 800);
+      } catch (err) {
+        showToast('Error submitting quiz: ' + err.message, 'error');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Submit Answers & View Score 🎯';
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initQuizzes);
+  </script>
+</body>
+</html>
+

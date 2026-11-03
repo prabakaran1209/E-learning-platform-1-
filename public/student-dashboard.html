@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - EduPortal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">🎓</div>
+        <div style="font-weight: 800; font-size: 1.2rem;">Edu<span class="brand-accent">Portal</span></div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="sidebar-nav-heading">Student Menu</div>
+        <a href="student-dashboard.html" class="sidebar-link active">
+          <span>📊</span> Dashboard
+        </a>
+        <a href="enrolments.html" class="sidebar-link">
+          <span>🎓</span> My Enrolments
+        </a>
+        <a href="courses.html" class="sidebar-link">
+          <span>📚</span> Course Catalogue
+        </a>
+        <a href="notes.html" class="sidebar-link">
+          <span>📄</span> Study Notes
+        </a>
+        <a href="videos.html" class="sidebar-link">
+          <span>🎥</span> Video Learning
+        </a>
+        <a href="quizzes.html" class="sidebar-link">
+          <span>🧠</span> Online Quizzes
+        </a>
+        <a href="progress.html" class="sidebar-link">
+          <span>📈</span> Learning Progress
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar-circle" id="sidebar-avatar">U</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Student Name</div>
+            <div class="user-role-label">Enrolled Student</div>
+          </div>
+          <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" title="Logout" style="padding: 6px;">🚪</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+      <div class="dashboard-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <div class="page-title">Student Dashboard</div>
+        </div>
+        <div class="topbar-right">
+          <a href="courses.html" class="btn btn-primary btn-sm">+ Browse Courses</a>
+          <button onclick="Auth.logout()" class="btn btn-outline btn-sm">Log Out</button>
+        </div>
+      </div>
+
+      <div class="dashboard-body">
+        <!-- Welcome Hero Banner -->
+        <div class="card" style="margin-bottom: 28px; background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%); border-color: #bfdbfe;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <span class="badge badge-primary">Student Overview</span>
+              <h2 style="margin-top: 8px;" id="welcome-msg">Welcome back, Student! 👋</h2>
+              <p>Ready to continue your courses today? Keep your learning momentum going strong!</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <a href="notes.html" class="btn btn-outline btn-sm" style="background: white;">📄 View Notes</a>
+              <a href="quizzes.html" class="btn btn-primary btn-sm">🧠 Take a Quiz</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Key Metrics Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-blue">📚</div>
+            <div>
+              <div class="metric-val" id="metric-enrolled">0</div>
+              <div class="metric-title">Enrolled Courses</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-emerald">✅</div>
+            <div>
+              <div class="metric-val" id="metric-completed">0</div>
+              <div class="metric-title">Completed Courses</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-purple">🎥</div>
+            <div>
+              <div class="metric-val" id="metric-lessons">0</div>
+              <div class="metric-title">Lessons Completed</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-amber">🏆</div>
+            <div>
+              <div class="metric-val" id="metric-avg-quiz">0%</div>
+              <div class="metric-title">Average Quiz Score</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- In-Progress Courses & Quick Access -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 28px; margin-bottom: 32px;" class="dashboard-split-grid">
+          <div>
+            <div class="section-header">
+              <h3 class="section-title">My In-Progress Courses</h3>
+              <a href="enrolments.html" class="btn btn-outline btn-sm">View All Enrolments</a>
+            </div>
+            <div id="enrolled-courses-list" style="display: flex; flex-direction: column; gap: 16px;">
+              <div class="card" style="text-align: center; padding: 40px;">
+                <p>Loading your courses...</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-header">
+              <h3 class="section-title">Quick Study Shortcuts</h3>
+            </div>
+            <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+              <a href="notes.html" class="card card-interactive" style="padding: 16px; text-decoration: none; color: inherit; display: flex; align-items: center; gap: 14px;">
+                <div style="font-size: 1.8rem;">📄</div>
+                <div>
+                  <div style="font-weight: 700;">Download Study Notes</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">PDF lectures & summaries</div>
+                </div>
+              </a>
+
+              <a href="videos.html" class="card card-interactive" style="padding: 16px; text-decoration: none; color: inherit; display: flex; align-items: center; gap: 14px;">
+                <div style="font-size: 1.8rem;">🎥</div>
+                <div>
+                  <div style="font-weight: 700;">Watch Educational Videos</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Self-paced video tutorials</div>
+                </div>
+              </a>
+
+              <a href="quizzes.html" class="card card-interactive" style="padding: 16px; text-decoration: none; color: inherit; display: flex; align-items: center; gap: 14px;">
+                <div style="font-size: 1.8rem;">🧠</div>
+                <div>
+                  <div style="font-weight: 700;">Take Online Quizzes</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Instant score & explanations</div>
+                </div>
+              </a>
+
+              <a href="progress.html" class="card card-interactive" style="padding: 16px; text-decoration: none; color: inherit; display: flex; align-items: center; gap: 14px;">
+                <div style="font-size: 1.8rem;">📈</div>
+                <div>
+                  <div style="font-weight: 700;">Detailed Progress Report</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Visual progress metrics</div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <style>
+    @media (max-width: 900px) {
+      .dashboard-split-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+
+  <script src="js/api.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.requireAuth()) return;
+
+      const user = Auth.getUser();
+      document.getElementById('welcome-msg').innerText = `Welcome back, ${user.name}! 👋`;
+      document.getElementById('sidebar-user-name').innerText = user.name;
+      document.getElementById('sidebar-avatar').innerText = user.name.charAt(0).toUpperCase();
+
+      try {
+        const progressRes = await API.getMyProgress();
+        const { summary, courses } = progressRes.data;
+
+        document.getElementById('metric-enrolled').innerText = summary.totalEnrolled;
+        document.getElementById('metric-completed').innerText = summary.completedCourses;
+        document.getElementById('metric-lessons').innerText = summary.totalLessonsCompleted;
+        document.getElementById('metric-avg-quiz').innerText = `${summary.averageQuizScore}%`;
+
+        const container = document.getElementById('enrolled-courses-list');
+        if (!courses || courses.length === 0) {
+          container.innerHTML = `
+            <div class="card" style="text-align: center; padding: 40px;">
+              <div style="font-size: 2.5rem; margin-bottom: 12px;">📚</div>
+              <h3>No courses enrolled yet</h3>
+              <p style="margin: 10px 0 20px;">Explore our catalog of courses to start learning and tracking your progress.</p>
+              <a href="courses.html" class="btn btn-primary btn-sm">Explore Courses</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = courses.map(c => `
+          <div class="card" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
+              <div>
+                <span class="badge badge-primary" style="font-size: 0.72rem;">${c.category}</span>
+                <h4 style="margin-top: 6px; font-size: 1.1rem;">${c.courseTitle}</h4>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Instructor: ${c.instructor}</div>
+              </div>
+              <span class="badge ${c.status === 'completed' ? 'badge-success' : 'badge-warning'}">
+                ${c.status === 'completed' ? 'Completed' : 'In Progress'}
+              </span>
+            </div>
+
+            <div style="margin: 14px 0 16px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px;">
+                <span style="font-weight: 600;">Course Completion</span>
+                <span style="font-weight: 700; color: var(--primary);">${c.progressPercentage}%</span>
+              </div>
+              <div class="progress-container">
+                <div class="progress-bar" style="width: ${c.progressPercentage}%;"></div>
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">
+                ${c.completedLessons} of ${c.totalLessons} video lessons completed
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+              <a href="videos.html?courseId=${c.courseId}" class="btn btn-primary btn-sm" style="flex: 1;">
+                ▶️ Continue Lessons
+              </a>
+              <a href="notes.html?courseId=${c.courseId}" class="btn btn-outline btn-sm">
+                📄 Notes
+              </a>
+              <a href="quizzes.html?courseId=${c.courseId}" class="btn btn-outline btn-sm">
+                🧠 Quizzes
+              </a>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        showToast('Error loading student dashboard: ' + err.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
+

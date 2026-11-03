@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Progress Tracking - EduPortal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">🎓</div>
+        <div style="font-weight: 800; font-size: 1.2rem;">Edu<span class="brand-accent">Portal</span></div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="sidebar-nav-heading">Student Menu</div>
+        <a href="student-dashboard.html" class="sidebar-link">
+          <span>📊</span> Dashboard
+        </a>
+        <a href="enrolments.html" class="sidebar-link">
+          <span>🎓</span> My Enrolments
+        </a>
+        <a href="courses.html" class="sidebar-link">
+          <span>📚</span> Course Catalogue
+        </a>
+        <a href="notes.html" class="sidebar-link">
+          <span>📄</span> Study Notes
+        </a>
+        <a href="videos.html" class="sidebar-link">
+          <span>🎥</span> Video Learning
+        </a>
+        <a href="quizzes.html" class="sidebar-link">
+          <span>🧠</span> Online Quizzes
+        </a>
+        <a href="progress.html" class="sidebar-link active">
+          <span>📈</span> Learning Progress
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar-circle" id="sidebar-avatar">U</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Student Name</div>
+            <div class="user-role-label">Enrolled Student</div>
+          </div>
+          <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" title="Logout" style="padding: 6px;">🚪</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="dashboard-main">
+      <div class="dashboard-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <div class="page-title">Personalized Learning Progress</div>
+        </div>
+        <div class="topbar-right">
+          <button onclick="window.print()" class="btn btn-outline btn-sm">🖨️ Print Report</button>
+        </div>
+      </div>
+
+      <div class="dashboard-body">
+        <!-- 4 Metrics Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-blue">🎓</div>
+            <div>
+              <div class="metric-val" id="prog-total-enrolled">0</div>
+              <div class="metric-title">Enrolled Courses</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-emerald">🏁</div>
+            <div>
+              <div class="metric-val" id="prog-completed-courses">0</div>
+              <div class="metric-title">Completed Courses</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-purple">⏳</div>
+            <div>
+              <div class="metric-val" id="prog-pending-courses">0</div>
+              <div class="metric-title">In-Progress Courses</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box metric-icon-amber">🎯</div>
+            <div>
+              <div class="metric-val" id="prog-avg-quiz">0%</div>
+              <div class="metric-title">Average Quiz Score</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Completion Breakdown -->
+        <div class="card" style="margin-bottom: 32px; padding: 28px;">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Course Completion Tracker</h3>
+              <p style="font-size: 0.88rem;">Real-time progress bars calculated from video lessons and quiz completions stored in MongoDB.</p>
+            </div>
+          </div>
+
+          <div id="course-progress-list" style="display: flex; flex-direction: column; gap: 20px;">
+            <p>Loading course breakdown...</p>
+          </div>
+        </div>
+
+        <!-- Historical Quiz Scores & Attempts -->
+        <div class="card" style="padding: 28px;">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Quiz Performance & Attempt History</h3>
+              <p style="font-size: 0.88rem;">Track your historical quiz submissions, percentages, and review answers.</p>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Quiz Title</th>
+                  <th>Course</th>
+                  <th>Score</th>
+                  <th>Percentage</th>
+                  <th>Status</th>
+                  <th>Attempt Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="quiz-attempts-tbody">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--text-muted);">Loading quiz attempts...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.requireAuth()) return;
+
+      const user = Auth.getUser();
+      document.getElementById('sidebar-user-name').innerText = user.name;
+      document.getElementById('sidebar-avatar').innerText = user.name.charAt(0).toUpperCase();
+
+      try {
+        const [progRes, quizAttemptsRes] = await Promise.all([
+          API.getMyProgress(),
+          API.getMyQuizResults()
+        ]);
+
+        const { summary, courses } = progRes.data;
+
+        document.getElementById('prog-total-enrolled').innerText = summary.totalEnrolled;
+        document.getElementById('prog-completed-courses').innerText = summary.completedCourses;
+        document.getElementById('prog-pending-courses').innerText = summary.pendingCourses;
+        document.getElementById('prog-avg-quiz').innerText = `${summary.averageQuizScore}%`;
+
+        // Render course breakdown
+        const progressList = document.getElementById('course-progress-list');
+        if (courses.length === 0) {
+          progressList.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">No enrolled courses found.</p>';
+        } else {
+          progressList.innerHTML = courses.map(c => `
+            <div style="padding: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: #fafcff;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div>
+                  <h4 style="font-size: 1.05rem; font-weight: 700;">${c.courseTitle}</h4>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                    ${c.completedLessons} of ${c.totalLessons} lessons completed • Category: ${c.category}
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <span class="badge ${c.status === 'completed' ? 'badge-success' : 'badge-warning'}">
+                    ${c.status === 'completed' ? '100% Completed' : `${c.progressPercentage}% In Progress`}
+                  </span>
+                </div>
+              </div>
+
+              <div class="progress-container" style="height: 10px; margin-top: 10px;">
+                <div class="progress-bar" style="width: ${c.progressPercentage}%;"></div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px;">
+                <a href="videos.html?courseId=${c.courseId}" class="btn btn-primary btn-sm">▶️ Continue Lessons</a>
+                <a href="quizzes.html?courseId=${c.courseId}" class="btn btn-outline btn-sm">🧠 Take Quiz</a>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // Render Quiz Attempts
+        const tbody = document.getElementById('quiz-attempts-tbody');
+        const attempts = quizAttemptsRes.data || [];
+
+        if (attempts.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">No quiz attempts recorded yet. Attend online quizzes to track your scores!</td></tr>';
+        } else {
+          tbody.innerHTML = attempts.map(a => {
+            const dateStr = new Date(a.attemptedAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+
+            return `
+              <tr>
+                <td style="font-weight: 600;">${a.quiz ? a.quiz.title : 'General Quiz'}</td>
+                <td>${a.course ? a.course.title : '-'}</td>
+                <td>${a.score} / ${a.totalQuestions}</td>
+                <td><strong>${a.percentage}%</strong></td>
+                <td>
+                  <span class="badge ${a.passed ? 'badge-success' : 'badge-danger'}">
+                    ${a.passed ? 'Passed' : 'Failed'}
+                  </span>
+                </td>
+                <td style="font-size: 0.85rem; color: var(--text-muted);">${dateStr}</td>
+                <td>
+                  <a href="quiz-result.html?attemptId=${a._id}" class="btn btn-outline btn-sm">
+                    View Details
+                  </a>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+      } catch (err) {
+        showToast('Error loading progress details: ' + err.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
+

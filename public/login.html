@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - EduPortal E-Learning</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .auth-page {
+      min-height: calc(100vh - var(--nav-height));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 40%);
+    }
+    .auth-card {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--shadow-lg);
+    }
+    .demo-pill {
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      background: var(--bg-subtle);
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .demo-pill:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">🎓</div>
+        <span>Edu<span class="brand-accent">Portal</span></span>
+      </a>
+      <div class="nav-auth" id="navbar-auth-section"></div>
+    </div>
+  </header>
+
+  <main class="auth-page">
+    <div class="auth-card">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <span class="badge badge-purple">Secure Authentication</span>
+        <h2 style="margin-top: 10px; font-size: 1.8rem;">Welcome Back</h2>
+        <p style="font-size: 0.95rem;">Log in to access your courses, materials, and quizzes</p>
+      </div>
+
+      <!-- Quick Demo Login Helpers -->
+      <div style="margin-bottom: 22px; padding: 12px; background: #f8fafc; border: 1px dashed var(--border-color); border-radius: var(--radius-md);">
+        <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+          ⚡ One-Click Demo Credentials:
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="demo-pill" onclick="fillDemo('student')">
+            <span>👨‍🎓</span> Student (Alex Morgan)
+          </button>
+          <button type="button" class="demo-pill" onclick="fillDemo('admin')">
+            <span>🛡️</span> Admin Account
+          </button>
+        </div>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email Address</label>
+          <input type="email" id="login-email" class="form-control" placeholder="name@elearn.com" required>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" for="login-password" style="margin-bottom: 0;">Password</label>
+          </div>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 1rem; margin-top: 10px;" id="login-btn">
+          Sign In
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 0.9rem;">
+        New to EduPortal? <a href="register.html" style="font-weight: 700;">Create a student account</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    function fillDemo(type) {
+      if (type === 'student') {
+        document.getElementById('login-email').value = 'student@elearn.com';
+        document.getElementById('login-password').value = 'student123';
+      } else {
+        document.getElementById('login-email').value = 'admin@elearn.com';
+        document.getElementById('login-password').value = 'admin123';
+      }
+      showToast(`Filled ${type} credentials`, 'info');
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.innerText = 'Signing in...';
+
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const res = await API.login({ email, password });
+        Auth.setAuth(res.token, res.user);
+        showToast('Login successful! Welcome back.', 'success');
+
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect');
+
+        setTimeout(() => {
+          if (redirect) {
+            window.location.href = redirect;
+          } else if (res.user.role === 'admin') {
+            window.location.href = 'admin-dashboard.html';
+          } else {
+            window.location.href = 'student-dashboard.html';
+          }
+        }, 600);
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        btn.innerText = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>
+

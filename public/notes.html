@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Materials & PDF Notes - EduPortal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">🎓</div>
+        <span>Edu<span class="brand-accent">Portal</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="courses.html" class="nav-link">Courses</a></li>
+        <li><a href="notes.html" class="nav-link active">Study Notes</a></li>
+        <li><a href="videos.html" class="nav-link">Video Lessons</a></li>
+        <li><a href="quizzes.html" class="nav-link">Online Quizzes</a></li>
+      </ul>
+
+      <div class="nav-auth" id="navbar-auth-section"></div>
+    </div>
+  </header>
+
+  <!-- Main Notes Catalogue Content -->
+  <main style="padding: 40px 0 80px;">
+    <div class="container">
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <span class="badge badge-purple">Academic Resources</span>
+          <h1 style="margin-top: 10px; font-size: 2.2rem;">Notes & Study Materials</h1>
+          <p>Download official lecture notes, chapter summaries, and PDF study guides organized by subject.</p>
+        </div>
+        <div id="admin-upload-shortcut" style="display: none;">
+          <a href="manage-materials.html" class="btn btn-primary btn-sm">
+            <span>📤</span> Upload New PDF Note
+          </a>
+        </div>
+      </div>
+
+      <!-- Filters & Search Bar -->
+      <div class="filter-bar">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="notes-search" class="form-control search-input" placeholder="Search notes by title, topic, or keyword...">
+        </div>
+
+        <div style="min-width: 240px;">
+          <select id="course-filter" class="form-control form-select">
+            <option value="">All Courses</option>
+          </select>
+        </div>
+
+        <div style="min-width: 180px;">
+          <select id="subject-filter" class="form-control form-select">
+            <option value="All">All Subjects</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Notes Grid -->
+      <div id="notes-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px;">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px;">
+          <p>Loading study materials...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 EduPortal E-Learning Management System. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    let allNotes = [];
+
+    async function initPage() {
+      if (Auth.isAdmin()) {
+        const adminBtn = document.getElementById('admin-upload-shortcut');
+        if (adminBtn) adminBtn.style.display = 'block';
+      }
+
+      // Populate courses dropdown
+      try {
+        const coursesRes = await API.getCourses();
+        const courseSelect = document.getElementById('course-filter');
+        const urlParams = new URLSearchParams(window.location.search);
+        const presetCourseId = urlParams.get('courseId');
+
+        coursesRes.data.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c._id;
+          opt.textContent = c.title;
+          if (presetCourseId === c._id) opt.selected = true;
+          courseSelect.appendChild(opt);
+        });
+
+        await fetchNotes();
+      } catch (err) {
+        showToast('Error initializing notes: ' + err.message, 'error');
+      }
+    }
+
+    async function fetchNotes() {
+      const search = document.getElementById('notes-search').value.trim();
+      const courseId = document.getElementById('course-filter').value;
+      const subject = document.getElementById('subject-filter').value;
+
+      let queryParams = [];
+      if (search) queryParams.push(`search=${encodeURIComponent(search)}`);
+      if (courseId) queryParams.push(`courseId=${encodeURIComponent(courseId)}`);
+      if (subject !== 'All') queryParams.push(`subject=${encodeURIComponent(subject)}`);
+
+      const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+
+      try {
+        const res = await API.getNotes(queryString);
+        allNotes = res.data;
+        updateSubjectFilter(allNotes);
+        renderNotes(allNotes);
+      } catch (err) {
+        showToast('Error loading study materials: ' + err.message, 'error');
+      }
+    }
+
+    function updateSubjectFilter(notes) {
+      const subjectSelect = document.getElementById('subject-filter');
+      const currentVal = subjectSelect.value;
+      const subjects = [...new Set(notes.map(n => n.subject).filter(Boolean))];
+
+      subjectSelect.innerHTML = '<option value="All">All Subjects</option>';
+      subjects.forEach(sub => {
+        const opt = document.createElement('option');
+        opt.value = sub;
+        opt.textContent = sub;
+        if (currentVal === sub) opt.selected = true;
+        subjectSelect.appendChild(opt);
+      });
+    }
+
+    function renderNotes(notes) {
+      const container = document.getElementById('notes-container');
+      if (!notes || notes.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px; background: white; border-radius: var(--radius-lg); border: 1px dashed var(--border-color);">
+            <div style="font-size: 3rem; margin-bottom: 12px;">📄</div>
+            <h3>No study materials found</h3>
+            <p style="margin-top: 6px;">Check back later or adjust your filters.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = notes.map(note => {
+        const dateFormatted = new Date(note.createdAt).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+
+        return `
+          <div class="card card-interactive" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <span class="badge badge-purple" style="font-size: 0.72rem;">${note.subject}</span>
+                <span class="badge badge-info" style="font-size: 0.72rem;">${note.fileSize}</span>
+              </div>
+
+              <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; line-height: 1.35;">${note.title}</h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">${note.description || 'Comprehensive notes and summaries covering this syllabus chapter.'}</p>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 14px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">
+                <span>📌 Topic: <strong>${note.topic}</strong></span>
+                <span>📅 ${dateFormatted}</span>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <a href="${note.fileUrl}" target="_blank" class="btn btn-outline btn-sm" style="flex: 1;">
+                  👁️ View Online
+                </a>
+                <a href="${note.fileUrl}" download="${note.originalName || 'notes.pdf'}" class="btn btn-primary btn-sm" style="flex: 1;">
+                  ⬇️ Download PDF
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    let debounceTimer;
+    document.getElementById('notes-search').addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(fetchNotes, 300);
+    });
+    document.getElementById('course-filter').addEventListener('change', fetchNotes);
+    document.getElementById('subject-filter').addEventListener('change', fetchNotes);
+
+    document.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>
+
