@@ -85,12 +85,16 @@ exports.getAllCourses = async (req, res) => {
   }
 };
 
-// @desc Get single course by ID
+// @desc Get single course by ID or Course Code (e.g. CCS370)
 // @route GET /api/courses/:id
 // @access Public (with optional auth)
 exports.getCourseById = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id)
+    const param = req.params.id;
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(param);
+    const query = isObjectId ? { _id: param } : { courseCode: param.toUpperCase() };
+
+    const course = await Course.findOne(query)
       .populate('instructorId', 'name designation department qualification bio avatar')
       .lean();
 
@@ -190,7 +194,7 @@ exports.getInstructorCourses = async (req, res) => {
 // @access Private (Admin or Instructor)
 exports.createCourse = async (req, res) => {
   try {
-    const { title, description, instructor, category, duration, level, thumbnail } = req.body;
+    const { title, description, instructor, category, duration, level, thumbnail, courseCode } = req.body;
 
     let thumbUrl = thumbnail;
     if (req.file) {
@@ -204,10 +208,20 @@ exports.createCourse = async (req, res) => {
       });
     }
 
+    // Validate course code if provided (e.g. CCS370 or CS1001)
+    let formattedCode = courseCode ? courseCode.trim().toUpperCase() : undefined;
+    if (formattedCode && !/^[A-Z]{3,4}\d{3,4}$/.test(formattedCode)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Course ID/Code must be in format like CCS370 or CS1001 (3-4 letters followed by 3-4 numbers)'
+      });
+    }
+
     const instructorName = req.user.role === 'instructor' ? req.user.name : (instructor || req.user.name);
     const instructorId = req.user.role === 'instructor' ? req.user._id : (req.body.instructorId || req.user._id);
 
     const course = await Course.create({
+      courseCode: formattedCode,
       title,
       description,
       instructor: instructorName,

@@ -648,6 +648,7 @@ tr:hover td{background:#f8fafc;}
         <h3 style="margin-bottom:18px;">➕ Add New Course</h3>
         <form id="add-course-form">
           <div class="grid-2">
+            <div class="form-group"><label class="form-label">Course ID / Code * (e.g. CCS370)</label><input class="form-control" id="c-code" placeholder="e.g. CCS370, CS101" required></div>
             <div class="form-group"><label class="form-label">Title *</label><input class="form-control" id="c-title" placeholder="Course title" required></div>
             <div class="form-group"><label class="form-label">Instructor Name *</label><input class="form-control" id="c-instructor" placeholder="Instructor name" required></div>
             <div class="form-group"><label class="form-label">Category</label>
@@ -925,10 +926,14 @@ async function initHome() {
 }
 
 function courseCardHTML(c) {
+  const codeBadge = c.courseCode ? `<span class="badge badge-purple" style="margin-left:4px;">${c.courseCode}</span>` : '';
   return `<div class="course-card">
     <img class="course-thumb" src="${c.thumbnail||'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400'}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400'" alt="${c.title}">
     <div class="course-body">
-      <span class="badge badge-blue">${c.category}</span>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+        <span class="badge badge-blue">${c.category}</span>
+        ${codeBadge}
+      </div>
       <div class="course-title">${c.title}</div>
       <div class="course-desc">${c.description}</div>
       <div class="course-meta"><span>👨‍🏫 ${c.instructor}</span><span>⏱️ ${c.duration}</span></div>
@@ -1023,15 +1028,18 @@ async function loadNotes() {
     const sel = document.getElementById('notes-subject');
     const curVal = sel.value;
     sel.innerHTML = '<option value="">All Subjects</option>' + subjects.map(s => `<option ${s===curVal?'selected':''}>${s}</option>`).join('');
-    grid.innerHTML = notes.length ? notes.map(n => `
+    grid.innerHTML = notes.length ? notes.map(n => {
+      const fileEndpoint = n._id ? `/api/notes/${n._id}/file` : (n.fileUrl || '#');
+      return `
       <div class="card card-hover">
         <div style="font-size:2rem;margin-bottom:10px;">📄</div>
         <span class="badge badge-blue" style="margin-bottom:8px;">${n.subject}</span>
         <div style="font-weight:700;margin-bottom:4px;">${n.title}</div>
         <div style="font-size:0.82rem;color:var(--muted);margin-bottom:4px;">Topic: ${n.topic}</div>
         <div style="font-size:0.8rem;color:var(--subtle);margin-bottom:12px;">${n.course?.title||'General'} · ${n.fileSize||'—'}</div>
-        <a href="${n.fileUrl}" target="_blank" class="btn btn-primary btn-sm btn-full">⬇️ Download PDF</a>
-      </div>`).join('') : '<div class="empty"><div class="icon">📄</div><h3>No Notes Found</h3></div>';
+        <a href="${fileEndpoint}" target="_blank" class="btn btn-primary btn-sm btn-full">⬇️ Access / Download PDF</a>
+      </div>`;
+    }).join('') : '<div class="empty"><div class="icon">📄</div><h3>No Notes Found</h3></div>';
   } catch(e) { grid.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Failed to load notes.</div>'; }
 }
 
@@ -1271,7 +1279,7 @@ async function initManageCourses() {
     const courses = res.data || [];
     document.getElementById('manage-courses-table').innerHTML = courses.map(c => `
       <tr>
-        <td><div style="font-weight:600;">${c.title}</div></td>
+        <td><div style="font-weight:600;">${c.title}</div><div style="font-size:0.75rem;color:var(--muted);">${c.courseCode || 'N/A'}</div></td>
         <td><span class="badge badge-blue">${c.category}</span></td>
         <td>${c.instructor}</td>
         <td>${c.enrolledCount||0}</td>
@@ -1282,6 +1290,7 @@ async function initManageCourses() {
     e.preventDefault();
     try {
       await apiReq('/courses', 'POST', {
+        courseCode: document.getElementById('c-code').value.trim().toUpperCase(),
         title: document.getElementById('c-title').value,
         description: document.getElementById('c-desc').value,
         instructor: document.getElementById('c-instructor').value,

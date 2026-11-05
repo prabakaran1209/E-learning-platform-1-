@@ -1,6 +1,13 @@
 const mongoose = require('mongoose');
 
 const courseSchema = new mongoose.Schema({
+  courseCode: {
+    type: String,
+    trim: true,
+    uppercase: true,
+    match: [/^[A-Za-z]{3,4}\d{3,4}$/, 'Course code must follow format like CCS370 or CS101 (3-4 letters followed by 3-4 numbers)'],
+    index: true
+  },
   title: {
     type: String,
     required: [true, 'Please provide course title'],

@@ -82,8 +82,9 @@ const seedDatabase = async () => {
       bio: 'Information Technology major specializing in Artificial Intelligence.'
     });
 
-    // 2. Create Courses
+    // 2. Create Courses with standardized Course Codes (e.g. CCS370)
     const course1 = await Course.create({
+      courseCode: 'CCS370',
       title: 'Full-Stack Modern Web Development',
       description: 'Master HTML5, modern CSS3, responsive layouts, asynchronous JavaScript, Node.js, Express, and MongoDB to build production-grade web applications.',
       instructor: 'Dr. Angela Roberts',
@@ -97,6 +98,7 @@ const seedDatabase = async () => {
     });
 
     const course2 = await Course.create({
+      courseCode: 'CS1001',
       title: 'Machine Learning & AI with Python',
       description: 'Comprehensive study of supervised and unsupervised learning, mathematical formulations, neural networks, computer vision, and model evaluation.',
       instructor: 'Prof. Michael Chang',
@@ -110,6 +112,7 @@ const seedDatabase = async () => {
     });
 
     const course3 = await Course.create({
+      courseCode: 'IT2002',
       title: 'Data Structures & Algorithms in Java',
       description: 'Strengthen problem-solving foundations: asymptotic time complexity analysis, arrays, linked lists, trees, heaps, graphs, and dynamic programming.',
       instructor: 'Dr. Rajesh Sharma',
@@ -123,6 +126,7 @@ const seedDatabase = async () => {
     });
 
     const course4 = await Course.create({
+      courseCode: 'CSE3003',
       title: 'Cloud Computing & DevOps Engineering',
       description: 'Learn modern DevOps workflows: Linux fundamentals, containerization with Docker, orchestration with Kubernetes, and CI/CD pipelines.',
       instructor: 'Sarah Connor',

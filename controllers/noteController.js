@@ -76,6 +76,52 @@ exports.getNoteById = async (req, res) => {
   }
 };
 
+// @desc Download or view note file directly (supports local uploaded file & remote URL)
+// @route GET /api/notes/:id/file
+// @access Public
+exports.getNoteFile = async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: 'Study note not found'
+      });
+    }
+
+    const fileUrl = note.fileUrl;
+
+    // 1. If it's a remote URL (http / https), redirect directly to online resource
+    if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+      return res.redirect(fileUrl);
+    }
+
+    // 2. If it's a local uploaded file (e.g. /uploads/notes/filename.pdf)
+    const normalizedPath = fileUrl.startsWith('/') ? fileUrl.substring(1) : fileUrl;
+    const localFilePath = path.join(__dirname, '..', normalizedPath);
+
+    if (fs.existsSync(localFilePath)) {
+      return res.sendFile(localFilePath);
+    }
+
+    // 3. Fallback: If not found on local disk, check if it's accessible via public
+    const publicPath = path.join(__dirname, '..', 'public', normalizedPath);
+    if (fs.existsSync(publicPath)) {
+      return res.sendFile(publicPath);
+    }
+
+    return res.status(404).json({
+      success: false,
+      message: 'Physical note file not found on server'
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message || 'Error streaming note file'
+    });
+  }
+};
+
 // @desc Upload new note (Admin or Course Instructor)
 // @route POST /api/notes
 // @access Private (Admin or Instructor)
