@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduPortal – E-Learning Management Portal</title>
+<style>
+/* ===== DESIGN SYSTEM ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --primary:#2563eb;--primary-hover:#1d4ed8;--primary-light:#eff6ff;
+  --purple:#7c3aed;--gradient:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);
+  --bg:#f8fafc;--surface:#fff;--border:#e2e8f0;
+  --text:#0f172a;--muted:#64748b;--subtle:#94a3b8;
+  --success:#10b981;--warning:#f59e0b;--danger:#ef4444;
+  --shadow:0 4px 12px rgba(15,23,42,0.08);--shadow-lg:0 12px 30px rgba(15,23,42,0.12);
+  --radius:12px;--radius-lg:18px;--transition:all 0.2s ease;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;}
+a{color:var(--primary);text-decoration:none;}
+h1{font-size:2.4rem;font-weight:800;letter-spacing:-0.03em;}
+h2{font-size:1.8rem;font-weight:700;}
+h3{font-size:1.3rem;font-weight:700;}
+h4{font-size:1.1rem;font-weight:600;}
+p{color:var(--muted);}
+
+/* ===== LAYOUT ===== */
+.page-section{display:none;}
+.page-section.active{display:block;}
+.container{max-width:1200px;margin:0 auto;padding:0 24px;}
+
+/* ===== NAVBAR ===== */
+.navbar{height:68px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;display:flex;align-items:center;}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;}
+.nav-brand{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:800;color:var(--text);cursor:pointer;}
+.brand-icon{width:36px;height:36px;background:var(--gradient);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.brand-accent{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-links{display:flex;gap:24px;list-style:none;}
+.nav-links a{font-weight:600;color:var(--muted);font-size:0.92rem;cursor:pointer;padding:4px 0;}
+.nav-links a:hover,.nav-links a.active{color:var(--primary);}
+.nav-auth{display:flex;align-items:center;gap:10px;}
+.user-badge{display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--bg);border:1px solid var(--border);border-radius:999px;font-size:0.88rem;font-weight:600;}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;font-weight:600;font-size:0.9rem;cursor:pointer;border:none;transition:var(--transition);}
+.btn-primary{background:var(--gradient);color:#fff;}
+.btn-primary:hover{opacity:0.9;transform:translateY(-1px);}
+.btn-outline{background:#fff;color:var(--primary);border:1.5px solid var(--border);}
+.btn-outline:hover{border-color:var(--primary);background:var(--primary-light);}
+.btn-danger{background:#fef2f2;color:var(--danger);border:1px solid #fecaca;}
+.btn-danger:hover{background:var(--danger);color:#fff;}
+.btn-sm{padding:7px 14px;font-size:0.82rem;}
+.btn-lg{padding:14px 28px;font-size:1rem;}
+.btn-full{width:100%;justify-content:center;}
+
+/* ===== CARDS ===== */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);}
+.card-hover{transition:var(--transition);}
+.card-hover:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+
+/* ===== FORMS ===== */
+.form-group{margin-bottom:18px;}
+.form-label{display:block;font-weight:600;font-size:0.88rem;margin-bottom:6px;color:var(--text);}
+.form-control{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.92rem;outline:none;transition:var(--transition);}
+.form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+select.form-control{cursor:pointer;}
+
+/* ===== BADGES ===== */
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;}
+.badge-blue{background:#dbeafe;color:#1d4ed8;}
+.badge-purple{background:#ede9fe;color:#6d28d9;}
+.badge-green{background:#d1fae5;color:#065f46;}
+.badge-yellow{background:#fef3c7;color:#92400e;}
+.badge-red{background:#fee2e2;color:#991b1b;}
+
+/* ===== GRID ===== */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+
+/* ===== DASHBOARD LAYOUT ===== */
+.dash-layout{display:flex;min-height:calc(100vh - 68px);}
+.sidebar{width:250px;background:#fff;border-right:1px solid var(--border);padding:20px 0;flex-shrink:0;}
+.sidebar-heading{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--subtle);padding:0 20px;margin:16px 0 8px;}
+.sidebar-link{display:flex;align-items:center;gap:12px;padding:11px 20px;font-weight:600;font-size:0.9rem;color:var(--muted);cursor:pointer;border-left:3px solid transparent;transition:var(--transition);}
+.sidebar-link:hover{color:var(--primary);background:var(--primary-light);}
+.sidebar-link.active{color:var(--primary);background:var(--primary-light);border-left-color:var(--primary);}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);margin-top:auto;}
+.dash-main{flex:1;padding:28px;overflow-y:auto;}
+.dash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.page-title{font-size:1.5rem;font-weight:800;}
+
+/* ===== METRICS ===== */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.metric-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;display:flex;align-items:center;gap:16px;}
+.metric-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+.metric-icon.blue{background:#dbeafe;}
+.metric-icon.green{background:#d1fae5;}
+.metric-icon.purple{background:#ede9fe;}
+.metric-icon.amber{background:#fef3c7;}
+.metric-val{font-size:1.8rem;font-weight:800;color:var(--text);}
+.metric-lbl{font-size:0.8rem;color:var(--muted);font-weight:500;}
+
+/* ===== PROGRESS BAR ===== */
+.progress-wrap{background:#f1f5f9;border-radius:999px;height:8px;overflow:hidden;}
+.progress-bar{height:100%;background:var(--gradient);border-radius:999px;transition:width 0.5s ease;}
+
+/* ===== TABLE ===== */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+th{padding:12px 16px;text-align:left;background:#f8fafc;font-weight:700;font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border);}
+td{padding:12px 16px;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f8fafc;}
+
+/* ===== HERO ===== */
+.hero{background:linear-gradient(160deg,#eff6ff 0%,#f5f3ff 60%,#fdf4ff 100%);padding:80px 0 60px;text-align:center;}
+.hero h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:1.1rem;max-width:600px;margin:16px auto 32px;}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.stats-strip{display:flex;justify-content:center;gap:60px;margin-top:50px;padding:28px;background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow);}
+.stat-num{font-size:2rem;font-weight:800;color:var(--primary);}
+.stat-lbl{font-size:0.82rem;color:var(--muted);}
+
+/* ===== AUTH CARD ===== */
+.auth-wrap{min-height:calc(100vh - 68px);display:flex;align-items:center;justify-content:center;padding:40px 20px;background:radial-gradient(circle at 20% 20%,rgba(37,99,235,0.06) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(124,58,237,0.06) 0%,transparent 50%);}
+.auth-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px;width:100%;max-width:460px;box-shadow:var(--shadow-lg);}
+.auth-card h2{text-align:center;margin-bottom:6px;}
+.auth-card .sub{text-align:center;margin-bottom:24px;}
+.demo-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:#f8fafc;border:1px dashed var(--border);border-radius:10px;}
+.demo-pill{padding:6px 12px;border:1px solid var(--border);border-radius:999px;font-size:0.78rem;font-weight:600;cursor:pointer;background:#fff;transition:var(--transition);}
+.demo-pill:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light);}
+
+/* ===== COURSE CARD ===== */
+.course-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:var(--transition);}
+.course-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);}
+.course-thumb{height:160px;object-fit:cover;width:100%;}
+.course-body{padding:18px;}
+.course-title{font-size:1rem;font-weight:700;margin:8px 0 6px;color:var(--text);}
+.course-desc{font-size:0.83rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.course-meta{display:flex;justify-content:space-between;font-size:0.78rem;color:var(--muted);margin:10px 0;padding-top:10px;border-top:1px solid var(--border);}
+.course-actions{display:flex;gap:8px;margin-top:12px;}
+
+/* ===== VIDEO CARD ===== */
+.video-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.video-embed{position:relative;padding-top:56.25%;background:#000;}
+.video-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.video-body{padding:16px;}
+
+/* ===== QUIZ ===== */
+.quiz-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.quiz-modal-inner{background:#fff;border-radius:var(--radius-lg);max-width:640px;width:100%;max-height:85vh;overflow-y:auto;padding:32px;}
+.option-btn{display:block;width:100%;text-align:left;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:10px;transition:var(--transition);background:#fff;font-size:0.9rem;}
+.option-btn:hover{border-color:var(--primary);background:var(--primary-light);}
+.option-btn.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary);font-weight:600;}
+.option-btn.correct{border-color:var(--success);background:#d1fae5;color:#065f46;}
+.option-btn.wrong{border-color:var(--danger);background:#fee2e2;color:#991b1b;}
+
+/* ===== FILTER BAR ===== */
+.filter-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;align-items:center;}
+.filter-bar .form-control{max-width:220px;}
+.search-box{flex:1;min-width:200px;}
+
+/* ===== SECTION HEADER ===== */
+.section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.section-hdr h3{margin:0;}
+
+/* ===== TOAST ===== */
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;}
+.toast{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:12px;font-size:0.88rem;font-weight:600;box-shadow:var(--shadow-lg);animation:fadeIn 0.3s ease;min-width:260px;}
+.toast-success{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}
+.toast-error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}
+.toast-warning{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;}
+.toast-info{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .metrics-grid{grid-template-columns:repeat(2,1fr);}
+  .grid-3,.grid-4{grid-template-columns:repeat(2,1fr);}
+  .dash-layout{flex-direction:column;}
+  .sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border);}
+  .nav-links{display:none;}
+  .stats-strip{gap:24px;flex-wrap:wrap;}
+}
+@media(max-width:600px){
+  .metrics-grid,.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+  .hero h1{font-size:1.8rem;}
+  .auth-card{padding:24px;}
+}
+
+/* ===== EMPTY STATE ===== */
+.empty{text-align:center;padding:60px 20px;}
+.empty .icon{font-size:3rem;margin-bottom:12px;}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:24px;}
+.tab-btn{padding:10px 20px;font-weight:600;font-size:0.9rem;border:none;background:none;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:var(--transition);}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="main-navbar">
+  <div class="container nav-inner">
+    <div class="nav-brand" onclick="showPage('home')">
+      <div class="brand-icon">🎓</div>
+      <span>Edu<span class="brand-accent">Portal</span></span>
+    </div>
+    <ul class="nav-links">
+      <li><a onclick="showPage('home')" data-page="home">Home</a></li>
+      <li><a onclick="showPage('courses')" data-page="courses">Courses</a></li>
+      <li><a onclick="showPage('notes')" data-page="notes">Study Notes</a></li>
+      <li><a onclick="showPage('videos')" data-page="videos">Videos</a></li>
+      <li><a onclick="showPage('quizzes')" data-page="quizzes">Quizzes</a></li>
+    </ul>
+    <div class="nav-auth" id="nav-auth"></div>
+  </div>
+</nav>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- ============================================================ -->
+<!-- PAGE: HOME -->
+<!-- ============================================================ -->
+<div id="page-home" class="page-section">
+  <section class="hero">
+    <div class="container">
+      <span class="badge badge-purple">✨ Next-Gen College Learning</span>
+      <h1 style="margin-top:12px;">Learn Without <span>Limits</span></h1>
+      <p>Explore courses, access learning materials, and track your progress with our all-in-one student-centered learning platform.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary btn-lg" onclick="showPage('register')">🚀 Get Started Free</button>
+        <button class="btn btn-outline btn-lg" onclick="showPage('courses')">🔍 Explore Courses</button>
+      </div>
+      <div class="stats-strip" id="home-stats">
+        <div><div class="stat-num" id="stat-courses">10+</div><div class="stat-lbl">Active Courses</div></div>
+        <div><div class="stat-num" id="stat-students">50+</div><div class="stat-lbl">Students</div></div>
+        <div><div class="stat-num" id="stat-notes">20+</div><div class="stat-lbl">Study Materials</div></div>
+        <div><div class="stat-num" id="stat-quizzes">15+</div><div class="stat-lbl">Online Quizzes</div></div>
+      </div>
+    </div>
+  </section>
+  <!-- Features -->
+  <section style="padding:60px 0;background:#fff;">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:40px;">
+        <span class="badge badge-blue">Platform Features</span>
+        <h2 style="margin-top:10px;">Everything You Need to Excel</h2>
+      </div>
+      <div class="grid-4">
+        <div class="card card-hover" style="text-align:center;">
+          <div style="font-size:2rem;margin-bottom:12px;">📚</div>
+          <h4>Course Catalogue</h4>
+          <p style="font-size:0.85rem;">Browse curated courses across CS, engineering, and data science.</p>
+        </div>
+        <div class="card card-hover" style="text-align:center;">
+          <div style="font-size:2rem;margin-bottom:12px;">📄</div>
+          <h4>PDF Study Notes</h4>
+          <p style="font-size:0.85rem;">Download high-yield PDF lecture notes organized by subject.</p>
+        </div>
+        <div class="card card-hover" style="text-align:center;">
+          <div style="font-size:2rem;margin-bottom:12px;">🎥</div>
+          <h4>Video Learning</h4>
+          <p style="font-size:0.85rem;">Watch structured video lessons and mark them as completed.</p>
+        </div>
+        <div class="card card-hover" style="text-align:center;">
+          <div style="font-size:2rem;margin-bottom:12px;">🧠</div>
+          <h4>Online Quizzes</h4>
+          <p style="font-size:0.85rem;">Practice MCQ quizzes with instant scoring and explanations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Featured Courses -->
+  <section style="padding:60px 0;">
+    <div class="container">
+      <div class="section-hdr">
+        <div><span class="badge badge-purple">Featured</span><h2 style="margin-top:8px;">Start Learning Today</h2></div>
+        <button class="btn btn-outline btn-sm" onclick="showPage('courses')">View All →</button>
+      </div>
+      <div class="grid-auto" id="home-courses">
+        <div class="card" style="text-align:center;padding:40px;">Loading courses...</div>
+      </div>
+    </div>
+  </section>
+  <!-- CTA -->
+  <section style="padding:60px 0;background:var(--gradient);text-align:center;">
+    <div class="container">
+      <h2 style="color:#fff;font-size:2rem;">Ready to Elevate Your Academic Success?</h2>
+      <p style="color:rgba(255,255,255,0.85);margin:12px 0 28px;">Create your free account, enroll in top-rated courses, and begin tracking your mastery.</p>
+      <button class="btn btn-lg" style="background:#fff;color:var(--primary);font-weight:700;" onclick="showPage('register')">Create Student Account</button>
+    </div>
+  </section>
+  <!-- Footer -->
+  <footer style="background:#0f172a;color:#94a3b8;padding:40px 0;text-align:center;">
+    <div class="container">
+      <p style="color:#64748b;font-size:0.85rem;">© 2026 EduPortal E-Learning Management System. Built for College Web Technology Project.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: LOGIN -->
+<!-- ============================================================ -->
+<div id="page-login" class="page-section">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <span class="badge badge-purple" style="display:block;text-align:center;margin-bottom:10px;">Secure Authentication</span>
+      <h2>Welcome Back</h2>
+      <p class="sub">Log in to access your courses, materials, and quizzes</p>
+      <div class="demo-row">
+        <span style="font-size:0.75rem;font-weight:700;color:var(--muted);display:block;width:100%;margin-bottom:4px;">⚡ One-Click Demo:</span>
+        <button class="demo-pill" onclick="fillDemo('student')">👨‍🎓 Student</button>
+        <button class="demo-pill" onclick="fillDemo('admin')">🛡️ Admin</button>
+      </div>
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="login-email" class="form-control" placeholder="name@elearn.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="login-btn">Sign In</button>
+      </form>
+      <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:0.88rem;">
+        New here? <a onclick="showPage('register')" style="font-weight:700;cursor:pointer;">Create an account</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: REGISTER -->
+<!-- ============================================================ -->
+<div id="page-register" class="page-section">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <span class="badge badge-blue" style="display:block;text-align:center;margin-bottom:10px;">Student Registration</span>
+      <h2>Create Your Account</h2>
+      <p class="sub">Join students accessing notes, videos & lectures</p>
+      <form id="register-form">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="reg-name" class="form-control" placeholder="e.g. Alex Morgan" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="reg-email" class="form-control" placeholder="student@elearn.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="reg-password" class="form-control" placeholder="Minimum 6 characters" minlength="6" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Register As</label>
+          <select id="reg-role" class="form-control" onchange="toggleAdminField()">
+            <option value="student">Student Account</option>
+            <option value="admin">Administrator Account</option>
+          </select>
+        </div>
+        <div class="form-group" id="admin-secret-group" style="display:none;">
+          <label class="form-label">Admin Security Key</label>
+          <input type="password" id="reg-secret" class="form-control" placeholder="admin123">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="reg-btn">Create Account</button>
+      </form>
+      <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:0.88rem;">
+        Already have an account? <a onclick="showPage('login')" style="font-weight:700;cursor:pointer;">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: COURSES -->
+<!-- ============================================================ -->
+<div id="page-courses" class="page-section">
+  <div class="container" style="padding-top:36px;padding-bottom:60px;">
+    <div class="section-hdr">
+      <div><span class="badge badge-blue">Browse</span><h2 style="margin-top:8px;">Course Catalogue</h2></div>
+    </div>
+    <div class="filter-bar">
+      <input type="text" class="form-control search-box" id="course-search" placeholder="🔍 Search courses..." oninput="filterCourses()">
+      <select class="form-control" id="course-category" style="max-width:200px;" onchange="filterCourses()">
+        <option value="">All Categories</option>
+        <option>Web Development</option>
+        <option>Data Science</option>
+        <option>AI &amp; Machine Learning</option>
+        <option>Mobile Development</option>
+        <option>Cyber Security</option>
+        <option>Cloud Computing</option>
+        <option>Database Systems</option>
+        <option>Programming Languages</option>
+      </select>
+      <select class="form-control" id="course-level" style="max-width:160px;" onchange="filterCourses()">
+        <option value="">All Levels</option>
+        <option>Beginner</option>
+        <option>Intermediate</option>
+        <option>Advanced</option>
+      </select>
+    </div>
+    <div class="grid-auto" id="courses-grid">
+      <div class="card" style="text-align:center;padding:40px;">Loading courses...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: COURSE DETAILS -->
+<!-- ============================================================ -->
+<div id="page-course-details" class="page-section">
+  <div class="container" style="padding-top:36px;padding-bottom:60px;">
+    <button class="btn btn-outline btn-sm" onclick="showPage('courses')" style="margin-bottom:20px;">← Back to Courses</button>
+    <div id="course-details-content"><div class="card" style="text-align:center;padding:40px;">Loading...</div></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: STUDENT DASHBOARD -->
+<!-- ============================================================ -->
+<div id="page-student-dashboard" class="page-section">
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div class="brand-icon">🎓</div>
+        <span style="font-weight:800;">Edu<span class="brand-accent">Portal</span></span>
+      </div>
+      <div class="sidebar-heading">Student Menu</div>
+      <div class="sidebar-link active" onclick="showPage('student-dashboard')">📊 Dashboard</div>
+      <div class="sidebar-link" onclick="showPage('enrolments')">🎓 My Enrolments</div>
+      <div class="sidebar-link" onclick="showPage('courses')">📚 Course Catalogue</div>
+      <div class="sidebar-link" onclick="showPage('notes')">📄 Study Notes</div>
+      <div class="sidebar-link" onclick="showPage('videos')">🎥 Video Learning</div>
+      <div class="sidebar-link" onclick="showPage('quizzes')">🧠 Online Quizzes</div>
+      <div class="sidebar-link" onclick="showPage('progress')">📈 Learning Progress</div>
+      <div class="sidebar-footer">
+        <div id="student-sidebar-user" style="font-size:0.85rem;font-weight:600;margin-bottom:8px;color:var(--text);"></div>
+        <button class="btn btn-outline btn-sm btn-full" onclick="Auth.logout()">🚪 Logout</button>
+      </div>
+    </aside>
+    <main class="dash-main">
+      <div class="dash-header">
+        <div class="page-title" id="student-welcome">Welcome back! 👋</div>
+        <button class="btn btn-primary btn-sm" onclick="showPage('courses')">+ Browse Courses</button>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-icon blue">📚</div><div><div class="metric-val" id="m-enrolled">0</div><div class="metric-lbl">Enrolled Courses</div></div></div>
+        <div class="metric-card"><div class="metric-icon green">✅</div><div><div class="metric-val" id="m-completed">0</div><div class="metric-lbl">Completed</div></div></div>
+        <div class="metric-card"><div class="metric-icon purple">🎥</div><div><div class="metric-val" id="m-lessons">0</div><div class="metric-lbl">Lessons Done</div></div></div>
+        <div class="metric-card"><div class="metric-icon amber">🏆</div><div><div class="metric-val" id="m-quiz">0%</div><div class="metric-lbl">Avg Quiz Score</div></div></div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="section-hdr"><h3>My Courses</h3><button class="btn btn-outline btn-sm" onclick="showPage('enrolments')">View All</button></div>
+          <div id="student-courses-list"></div>
+        </div>
+        <div>
+          <div class="section-hdr"><h3>Quick Access</h3></div>
+          <div class="card" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="card card-hover" style="cursor:pointer;padding:14px;display:flex;gap:14px;align-items:center;" onclick="showPage('notes')">
+              <span style="font-size:1.5rem;">📄</span>
+              <div><div style="font-weight:700;">Download Notes</div><div style="font-size:0.8rem;color:var(--muted);">PDF lectures & summaries</div></div>
+            </div>
+            <div class="card card-hover" style="cursor:pointer;padding:14px;display:flex;gap:14px;align-items:center;" onclick="showPage('videos')">
+              <span style="font-size:1.5rem;">🎥</span>
+              <div><div style="font-weight:700;">Watch Videos</div><div style="font-size:0.8rem;color:var(--muted);">Self-paced video lessons</div></div>
+            </div>
+            <div class="card card-hover" style="cursor:pointer;padding:14px;display:flex;gap:14px;align-items:center;" onclick="showPage('quizzes')">
+              <span style="font-size:1.5rem;">🧠</span>
+              <div><div style="font-weight:700;">Take Quizzes</div><div style="font-size:0.8rem;color:var(--muted);">Instant scoring & explanations</div></div>
+            </div>
+            <div class="card card-hover" style="cursor:pointer;padding:14px;display:flex;gap:14px;align-items:center;" onclick="showPage('progress')">
+              <span style="font-size:1.5rem;">📈</span>
+              <div><div style="font-weight:700;">View Progress</div><div style="font-size:0.8rem;color:var(--muted);">Detailed progress report</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: ENROLMENTS -->
+<!-- ============================================================ -->
+<div id="page-enrolments" class="page-section">
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div class="brand-icon">🎓</div><span style="font-weight:800;">Edu<span class="brand-accent">Portal</span></span>
+      </div>
+      <div class="sidebar-heading">Student Menu</div>
+      <div class="sidebar-link" onclick="showPage('student-dashboard')">📊 Dashboard</div>
+      <div class="sidebar-link active" onclick="showPage('enrolments')">🎓 My Enrolments</div>
+      <div class="sidebar-link" onclick="showPage('courses')">📚 Courses</div>
+      <div class="sidebar-link" onclick="showPage('notes')">📄 Notes</div>
+      <div class="sidebar-link" onclick="showPage('videos')">🎥 Videos</div>
+      <div class="sidebar-link" onclick="showPage('quizzes')">🧠 Quizzes</div>
+      <div class="sidebar-link" onclick="showPage('progress')">📈 Progress</div>
+      <div class="sidebar-footer"><button class="btn btn-outline btn-sm btn-full" onclick="Auth.logout()">🚪 Logout</button></div>
+    </aside>
+    <main class="dash-main">
+      <div class="dash-header"><div class="page-title">My Enrolments</div></div>
+      <div id="enrolments-list" class="grid-auto"></div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: PROGRESS -->
+<!-- ============================================================ -->
+<div id="page-progress" class="page-section">
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div class="brand-icon">🎓</div><span style="font-weight:800;">Edu<span class="brand-accent">Portal</span></span>
+      </div>
+      <div class="sidebar-heading">Student Menu</div>
+      <div class="sidebar-link" onclick="showPage('student-dashboard')">📊 Dashboard</div>
+      <div class="sidebar-link" onclick="showPage('enrolments')">🎓 Enrolments</div>
+      <div class="sidebar-link" onclick="showPage('courses')">📚 Courses</div>
+      <div class="sidebar-link" onclick="showPage('notes')">📄 Notes</div>
+      <div class="sidebar-link" onclick="showPage('videos')">🎥 Videos</div>
+      <div class="sidebar-link" onclick="showPage('quizzes')">🧠 Quizzes</div>
+      <div class="sidebar-link active" onclick="showPage('progress')">📈 Progress</div>
+      <div class="sidebar-footer"><button class="btn btn-outline btn-sm btn-full" onclick="Auth.logout()">🚪 Logout</button></div>
+    </aside>
+    <main class="dash-main">
+      <div class="dash-header"><div class="page-title">Learning Progress</div></div>
+      <div class="metrics-grid" id="progress-metrics"></div>
+      <div class="section-hdr"><h3>Course Progress</h3></div>
+      <div id="progress-list" style="display:flex;flex-direction:column;gap:16px;"></div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: NOTES -->
+<!-- ============================================================ -->
+<div id="page-notes" class="page-section">
+  <div class="container" style="padding-top:36px;padding-bottom:60px;">
+    <div class="section-hdr"><div><span class="badge badge-blue">PDF Materials</span><h2 style="margin-top:8px;">Study Notes & Materials</h2></div></div>
+    <div class="filter-bar">
+      <input type="text" class="form-control search-box" id="notes-search" placeholder="🔍 Search notes..." oninput="loadNotes()">
+      <select class="form-control" id="notes-subject" style="max-width:200px;" onchange="loadNotes()">
+        <option value="">All Subjects</option>
+      </select>
+    </div>
+    <div class="grid-auto" id="notes-grid"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: VIDEOS -->
+<!-- ============================================================ -->
+<div id="page-videos" class="page-section">
+  <div class="container" style="padding-top:36px;padding-bottom:60px;">
+    <div class="section-hdr"><div><span class="badge badge-purple">Lessons</span><h2 style="margin-top:8px;">Video Learning</h2></div></div>
+    <div class="filter-bar">
+      <input type="text" class="form-control search-box" id="videos-search" placeholder="🔍 Search videos..." oninput="loadVideos()">
+    </div>
+    <div class="grid-auto" id="videos-grid"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: QUIZZES -->
+<!-- ============================================================ -->
+<div id="page-quizzes" class="page-section">
+  <div class="container" style="padding-top:36px;padding-bottom:60px;">
+    <div class="section-hdr"><div><span class="badge badge-green">Assessment</span><h2 style="margin-top:8px;">Online Quizzes</h2></div></div>
+    <div class="grid-auto" id="quizzes-grid"></div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div id="quiz-modal" class="quiz-modal" style="display:none;">
+  <div class="quiz-modal-inner">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 id="quiz-modal-title">Quiz</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeQuiz()">✕ Close</button>
+    </div>
+    <div id="quiz-modal-body"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: ADMIN DASHBOARD -->
+<!-- ============================================================ -->
+<div id="page-admin-dashboard" class="page-section">
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div class="brand-icon">🛡️</div><span style="font-weight:800;">Admin<span class="brand-accent">Panel</span></span>
+      </div>
+      <div class="sidebar-heading">Admin Menu</div>
+      <div class="sidebar-link active" onclick="showPage('admin-dashboard')">📊 Dashboard</div>
+      <div class="sidebar-link" onclick="showPage('manage-courses')">📚 Manage Courses</div>
+      <div class="sidebar-link" onclick="showPage('manage-materials')">📁 Manage Materials</div>
+      <div class="sidebar-link" onclick="showPage('manage-quizzes')">📝 Manage Quizzes</div>
+      <div class="sidebar-link" onclick="showPage('manage-students')">👥 Manage Students</div>
+      <div class="sidebar-footer"><button class="btn btn-outline btn-sm btn-full" onclick="Auth.logout()">🚪 Logout</button></div>
+    </aside>
+    <main class="dash-main">
+      <div class="dash-header"><div class="page-title">Admin Dashboard</div></div>
+      <div class="metrics-grid" id="admin-metrics"></div>
+      <div class="grid-2" style="margin-top:24px;">
+        <div>
+          <div class="section-hdr"><h3>Recent Enrolments</h3></div>
+          <div class="card"><div class="table-wrap"><table><thead><tr><th>Student</th><th>Course</th><th>Date</th></tr></thead><tbody id="admin-enrolments-table"></tbody></table></div></div>
+        </div>
+        <div>
+          <div class="section-hdr"><h3>Recent Quiz Attempts</h3></div>
+          <div class="card"><div class="table-wrap"><table><thead><tr><th>Student</th><th>Quiz</th><th>Score</th></tr></thead><tbody id="admin-quiz-table"></tbody></table></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: MANAGE COURSES -->
+<!-- ============================================================ -->
+<div id="page-manage-courses" class="page-section">
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div class="brand-icon">🛡️</div><span style="font-weight:800;">Admin<span class="brand-accent">Panel</span></span>
+      </div>
+      <div class="sidebar-heading">Admin Menu</div>
+      <div class="sidebar-link" onclick="showPage('admin-dashboard')">📊 Dashboard</div>
+      <div class="sidebar-link active" onclick="showPage('manage-courses')">📚 Manage Courses</div>
+      <div class="sidebar-link" onclick="showPage('manage-materials')">📁 Materials</div>
+      <div class="sidebar-link" onclick="showPage('manage-quizzes')">📝 Quizzes</div>
+      <div class="sidebar-link" onclick="showPage('manage-students')">👥 Students</div>
+      <div class="sidebar-footer"><button class="btn btn-outline btn-sm btn-full" onclick="Auth.logout()">🚪 Logout</button></div>
+    </aside>
+    <main class="dash-main">
+      <div class="dash-header"><div class="page-title">Manage Courses</div></div>
+      <!-- Add Course Form -->
+      <div class="card" style="margin-bottom:28px;">
+        <h3 style="margin-bottom:18px;">➕ Add New Course</h3>
+        <form id="add-course-form">
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Title *</label><input class="form-control" id="c-title" placeholder="Course title" required></div>
+            <div class="form-group"><label class="form-label">Instructor Name *</label><input class="form-control" id="c-instructor" placeholder="Instructor name" required></div>
+            <div class="form-group"><label class="form-label">Category</label>
+              <select class="form-control" id="c-category">
+                <option>Web Development</option><option>Data Science</option><option>AI &amp; Machine Learning</option>
+                <option>Mobile Development</option><option>Cyber Security</option><option>Cloud Computing</option>
+                <option>Database Systems</option><option>Programming Languages</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Level</label>
+              <select class="form-control" id="c-level"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Duration</label><input class="form-control" id="c-duration" placeholder="e.g. 6 Weeks" value="6 Weeks"></div>
+            <div class="form-group"><label class="form-label">Thumbnail URL</label><input class="form-control" id="c-thumb" placeholder="https://..."></div>
+          </div>
+          <div class="form-group"><label class="form-label">Description *</label><textarea class="form-control" id="c-desc" rows="3" placeholder="Course description" required></textarea></div>
+          <button type="submit" class="btn btn-primary">Create Course</button>
+        </form>
+      </div>
+      <!-- Courses Table -->
+      <div class="section-hdr"><h3>All Courses</h3></div>
+      <div class="card"><div class="table-wrap"><table><thead><tr><th>Title</th><th>Category</th><th>Instructor</th><th>Students</th><th>Actions</th></tr></thead><tbody id="manage-courses-table"></tbody></table></div></div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: MANAGE MATERIALS -->
+<!-- ============================================================ -->
+<div id="page-manage-materials" class="page-section">
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div class="brand-icon">🛡️</div><span style="font-weight:800;">Admin<span class="brand-accent">Panel</span></span>
+      </div>
+      <div class="sidebar-heading">Admin Menu</div>
+      <div class="sidebar-link" onclick="showPage('admin-dashboard')">📊 Dashboard</div>
+      <div class="sidebar-link" onclick="showPage('manage-courses')">📚 Courses</div>
+      <div class="sidebar-link active" onclick="showPage('manage-materials')">📁 Materials</div>
+      <div class="sidebar-link" onclick="showPage('manage-quizzes')">📝 Quizzes</div>
+      <div class="sidebar-link" onclick="showPage('manage-students')">👥 Students</div>
+      <div class="sidebar-footer"><button class="btn btn-outline btn-sm btn-full" onclick="Auth.logout()">🚪 Logout</button></div>
+    </aside>
+    <main class="dash-main">
+      <div class="dash-header"><div class="page-title">Manage Materials</div></div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('notes-tab','videos-tab',this)">📄 Notes</button>
+        <button class="tab-btn" onclick="switchTab('videos-tab','notes-tab',this)">🎥 Videos</button>
+      </div>
+      <!-- Notes Tab -->
+      <div id="notes-tab">
+        <div class="card" style="margin-bottom:24px;">
+          <h3 style="margin-bottom:16px;">➕ Add Study Note</h3>
+          <form id="add-note-form">
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">Course ID *</label><input class="form-control" id="n-course" placeholder="Course ObjectId" required></div>
+              <div class="form-group"><label class="form-label">Title *</label><input class="form-control" id="n-title" placeholder="Note title" required></div>
+              <div class="form-group"><label class="form-label">Subject *</label><input class="form-control" id="n-subject" placeholder="e.g. Data Structures" required></div>
+              <div class="form-group"><label class="form-label">Topic *</label><input class="form-control" id="n-topic" placeholder="e.g. Linked Lists" required></div>
+              <div class="form-group"><label class="form-label">PDF URL *</label><input class="form-control" id="n-fileurl" placeholder="https://..." required></div>
+              <div class="form-group"><label class="form-label">Description</label><input class="form-control" id="n-desc" placeholder="Short description"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Upload Note</button>
+          </form>
+        </div>
+        <div class="section-hdr"><h3>All Notes</h3></div>
+        <div class="card"><div class="table-wrap"><table><thead><tr><th>Title</th><th>Subject</th><th>Topic</th><th>Actions</th></tr></thead><tbody id="manage-notes-table"></tbody></table></div></div>
+      </div>
+      <!-- Videos Tab -->
+      <div id="videos-tab" style="display:none;">
+        <div class="card" style="margin-bottom:24px;">
+          <h3 style="margin-bottom:16px;">➕ Add Video Lesson</h3>
+          <form id="add-video-form">
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">Course ID *</label><input class="form-control" id="v-course" placeholder="Course ObjectId" required></div>
+              <div class="form-group"><label class="form-label">Title *</label><input class="form-control" id="v-title" placeholder="Video title" required></div>
+              <div class="form-group"><label class="form-label">Topic *</label><input class="form-control" id="v-topic" placeholder="e.g. Arrays" required></div>
+              <div class="form-group"><label class="form-label">YouTube URL *</label><input class="form-control" id="v-url" placeholder="https://youtube.com/watch?v=..." required></div>
+              <div class="form-group"><label class="form-label">Duration</label><input class="form-control" id="v-duration" placeholder="e.g. 15 mins" value="15 mins"></div>
+              <div class="form-group"><label class="form-label">Order</label><input type="number" class="form-control" id="v-order" placeholder="1" value="1"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Video</button>
+          </form>
+        </div>
+        <div class="section-hdr"><h3>All Videos</h3></div>
+        <div class="card"><div class="table-wrap"><table><thead><tr><th>Title</th><th>Topic</th><th>Duration</th><th>Actions</th></tr></thead><tbody id="manage-videos-table"></tbody></table></div></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: MANAGE QUIZZES -->
+<!-- ============================================================ -->
+<div id="page-manage-quizzes" class="page-section">
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div class="brand-icon">🛡️</div><span style="font-weight:800;">Admin<span class="brand-accent">Panel</span></span>
+      </div>
+      <div class="sidebar-heading">Admin Menu</div>
+      <div class="sidebar-link" onclick="showPage('admin-dashboard')">📊 Dashboard</div>
+      <div class="sidebar-link" onclick="showPage('manage-courses')">📚 Courses</div>
+      <div class="sidebar-link" onclick="showPage('manage-materials')">📁 Materials</div>
+      <div class="sidebar-link active" onclick="showPage('manage-quizzes')">📝 Quizzes</div>
+      <div class="sidebar-link" onclick="showPage('manage-students')">👥 Students</div>
+      <div class="sidebar-footer"><button class="btn btn-outline btn-sm btn-full" onclick="Auth.logout()">🚪 Logout</button></div>
+    </aside>
+    <main class="dash-main">
+      <div class="dash-header"><div class="page-title">Manage Quizzes</div></div>
+      <div class="card" style="margin-bottom:24px;">
+        <h3 style="margin-bottom:16px;">➕ Create Quiz</h3>
+        <form id="add-quiz-form">
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Course ID *</label><input class="form-control" id="q-course" placeholder="Course ObjectId" required></div>
+            <div class="form-group"><label class="form-label">Quiz Title *</label><input class="form-control" id="q-title" placeholder="Quiz title" required></div>
+            <div class="form-group"><label class="form-label">Time Limit (mins)</label><input type="number" class="form-control" id="q-time" value="15"></div>
+            <div class="form-group"><label class="form-label">Passing % </label><input type="number" class="form-control" id="q-pass" value="60"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Description</label><input class="form-control" id="q-desc" placeholder="Quiz description"></div>
+          <div id="questions-container"></div>
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="addQuestion()">+ Add Question</button>
+            <button type="submit" class="btn btn-primary">Create Quiz</button>
+          </div>
+        </form>
+      </div>
+      <div class="section-hdr"><h3>All Quizzes</h3></div>
+      <div class="card"><div class="table-wrap"><table><thead><tr><th>Title</th><th>Questions</th><th>Time</th><th>Passing</th><th>Actions</th></tr></thead><tbody id="manage-quizzes-table"></tbody></table></div></div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: MANAGE STUDENTS -->
+<!-- ============================================================ -->
+<div id="page-manage-students" class="page-section">
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div class="brand-icon">🛡️</div><span style="font-weight:800;">Admin<span class="brand-accent">Panel</span></span>
+      </div>
+      <div class="sidebar-heading">Admin Menu</div>
+      <div class="sidebar-link" onclick="showPage('admin-dashboard')">📊 Dashboard</div>
+      <div class="sidebar-link" onclick="showPage('manage-courses')">📚 Courses</div>
+      <div class="sidebar-link" onclick="showPage('manage-materials')">📁 Materials</div>
+      <div class="sidebar-link" onclick="showPage('manage-quizzes')">📝 Quizzes</div>
+      <div class="sidebar-link active" onclick="showPage('manage-students')">👥 Students</div>
+      <div class="sidebar-footer"><button class="btn btn-outline btn-sm btn-full" onclick="Auth.logout()">🚪 Logout</button></div>
+    </aside>
+    <main class="dash-main">
+      <div class="dash-header"><div class="page-title">Manage Students</div></div>
+      <div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Student ID</th><th>Enrolments</th><th>Completed</th><th>Avg Quiz</th><th>Actions</th></tr></thead><tbody id="manage-students-table"></tbody></table></div></div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- JAVASCRIPT -->
+<!-- ============================================================ -->
+<script>
+const API_BASE = '/api';
+let allCourses = [];
+let currentQuiz = null;
+let studentAnswers = {};
+let questionCount = 0;
+
+/* ===== AUTH ===== */
+const Auth = {
+  getToken: () => localStorage.getItem('elearn_token'),
+  getUser: () => { const u = localStorage.getItem('elearn_user'); return u ? JSON.parse(u) : null; },
+  setAuth: (token, user) => { localStorage.setItem('elearn_token', token); localStorage.setItem('elearn_user', JSON.stringify(user)); },
+  clearAuth: () => { localStorage.removeItem('elearn_token'); localStorage.removeItem('elearn_user'); },
+  isLoggedIn: () => !!localStorage.getItem('elearn_token'),
+  isAdmin: () => { const u = Auth.getUser(); return u && u.role === 'admin'; },
+  logout: () => { Auth.clearAuth(); showToast('Logged out successfully', 'success'); showPage('home'); },
+  requireAuth: (role = null) => {
+    if (!Auth.isLoggedIn()) { showToast('Please log in to continue', 'warning'); showPage('login'); return false; }
+    if (role && Auth.getUser().role !== role) { showToast('Access denied', 'error'); return false; }
+    return true;
+  }
+};
+
+/* ===== TOAST ===== */
+function showToast(msg, type = 'info') {
+  let c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 4000);
+}
+
+/* ===== API ===== */
+async function apiReq(endpoint, method = 'GET', data = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  const token = Auth.getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const cfg = { method, headers };
+  if (data) cfg.body = JSON.stringify(data);
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, cfg);
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.message || 'Request failed');
+    return json;
+  } catch (e) { throw e; }
+}
+
+/* ===== SHOW PAGE ===== */
+function showPage(pageId) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('page-' + pageId);
+  if (el) el.classList.add('active');
+  window.location.hash = pageId;
+  updateNav(pageId);
+  renderNavAuth();
+  const inits = {
+    'home': initHome,
+    'courses': initCourses,
+    'notes': loadNotes,
+    'videos': loadVideos,
+    'quizzes': loadQuizzes,
+    'student-dashboard': initStudentDashboard,
+    'enrolments': initEnrolments,
+    'progress': initProgress,
+    'admin-dashboard': initAdminDashboard,
+    'manage-courses': initManageCourses,
+    'manage-materials': initManageMaterials,
+    'manage-quizzes': initManageQuizzes,
+    'manage-students': initManageStudents,
+  };
+  if (inits[pageId]) inits[pageId]();
+  window.scrollTo(0, 0);
+}
+
+function updateNav(pageId) {
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.classList.toggle('active', a.dataset.page === pageId);
+  });
+}
+
+function renderNavAuth() {
+  const nav = document.getElementById('nav-auth');
+  if (Auth.isLoggedIn()) {
+    const u = Auth.getUser();
+    nav.innerHTML = `
+      <span class="user-badge">👤 ${u.name}</span>
+      <button class="btn btn-outline btn-sm" onclick="${u.role==='admin'?'showPage(\'admin-dashboard\')':'showPage(\'student-dashboard\')'}">${u.role==='admin'?'⚙️ Admin':'📊 Dashboard'}</button>
+      <button class="btn btn-outline btn-sm" onclick="Auth.logout()">Logout</button>`;
+  } else {
+    nav.innerHTML = `
+      <button class="btn btn-outline btn-sm" onclick="showPage('login')">Login</button>
+      <button class="btn btn-primary btn-sm" onclick="showPage('register')">Sign Up</button>`;
+  }
+}
+
+/* ===== HOME ===== */
+async function initHome() {
+  try {
+    const res = await apiReq('/admin/stats');
+    const s = res.data.stats;
+    document.getElementById('stat-courses').textContent = s.totalCourses + '+';
+    document.getElementById('stat-students').textContent = s.totalStudents + '+';
+    document.getElementById('stat-notes').textContent = s.totalNotes + '+';
+    document.getElementById('stat-quizzes').textContent = s.totalQuizzes + '+';
+  } catch(e) {}
+  try {
+    const res = await apiReq('/courses');
+    const courses = (res.data || []).slice(0, 3);
+    document.getElementById('home-courses').innerHTML = courses.length ? courses.map(c => courseCardHTML(c)).join('') : '<div class="card" style="padding:40px;text-align:center;">No courses yet.</div>';
+  } catch(e) {
+    document.getElementById('home-courses').innerHTML = '<div class="card" style="padding:40px;text-align:center;">Could not load courses.</div>';
+  }
+}
+
+function courseCardHTML(c) {
+  return `<div class="course-card">
+    <img class="course-thumb" src="${c.thumbnail||'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400'}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400'" alt="${c.title}">
+    <div class="course-body">
+      <span class="badge badge-blue">${c.category}</span>
+      <div class="course-title">${c.title}</div>
+      <div class="course-desc">${c.description}</div>
+      <div class="course-meta"><span>👨‍🏫 ${c.instructor}</span><span>⏱️ ${c.duration}</span></div>
+      <div class="course-actions">
+        <button class="btn btn-outline btn-sm" onclick="loadCourseDetails('${c._id}')">Details</button>
+        <button class="btn btn-primary btn-sm" onclick="enrollCourse('${c._id}')">Enroll</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ===== COURSES ===== */
+async function initCourses() {
+  const grid = document.getElementById('courses-grid');
+  grid.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Loading...</div>';
+  try {
+    const res = await apiReq('/courses');
+    allCourses = res.data || [];
+    renderCourses(allCourses);
+  } catch(e) { grid.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Failed to load courses.</div>'; }
+}
+
+function renderCourses(courses) {
+  const grid = document.getElementById('courses-grid');
+  grid.innerHTML = courses.length ? courses.map(c => courseCardHTML(c)).join('') : '<div class="empty"><div class="icon">📚</div><h3>No Courses Found</h3><p>Try adjusting your search filters.</p></div>';
+}
+
+function filterCourses() {
+  const search = document.getElementById('course-search').value.toLowerCase();
+  const cat = document.getElementById('course-category').value;
+  const lvl = document.getElementById('course-level').value;
+  const filtered = allCourses.filter(c => {
+    const matchSearch = !search || c.title.toLowerCase().includes(search) || c.description.toLowerCase().includes(search) || c.instructor.toLowerCase().includes(search);
+    const matchCat = !cat || c.category === cat;
+    const matchLvl = !lvl || c.level === lvl;
+    return matchSearch && matchCat && matchLvl;
+  });
+  renderCourses(filtered);
+}
+
+async function enrollCourse(courseId) {
+  if (!Auth.requireAuth()) return;
+  try {
+    await apiReq('/enrolments', 'POST', { courseId });
+    showToast('Enrolled successfully! 🎉', 'success');
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadCourseDetails(id) {
+  showPage('course-details');
+  const el = document.getElementById('course-details-content');
+  el.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Loading...</div>';
+  try {
+    const res = await apiReq(`/courses/${id}`);
+    const c = res.data;
+    el.innerHTML = `
+      <div class="card" style="margin-bottom:24px;">
+        <img src="${c.thumbnail}" style="width:100%;height:250px;object-fit:cover;border-radius:12px;margin-bottom:20px;" onerror="this.style.display='none'">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+          <span class="badge badge-blue">${c.category}</span>
+          <span class="badge badge-purple">${c.level}</span>
+          <span class="badge badge-green">${c.isAvailable ? 'Available' : 'Unavailable'}</span>
+        </div>
+        <h2>${c.title}</h2>
+        <p style="margin:10px 0 16px;">${c.description}</p>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:0.88rem;color:var(--muted);">
+          <span>👨‍🏫 ${c.instructor}</span><span>⏱️ ${c.duration}</span><span>🎥 ${(c.videos||[]).length} Videos</span>
+          <span>📄 ${(c.notes||[]).length} Notes</span><span>🧠 ${(c.quizzes||[]).length} Quizzes</span>
+          <span>👥 ${c.enrolledCount||0} Students</span>
+        </div>
+        <div style="margin-top:20px;"><button class="btn btn-primary" onclick="enrollCourse('${c._id}')">🎓 Enroll in This Course</button></div>
+      </div>
+      ${(c.videos||[]).length ? `<div class="section-hdr"><h3>📹 Video Lessons</h3></div><div class="grid-auto">${c.videos.map(v=>`<div class="card"><div style="font-weight:700;">${v.title}</div><div style="font-size:0.82rem;color:var(--muted);">${v.topic} · ${v.duration}</div></div>`).join('')}</div>` : ''}
+      ${(c.notes||[]).length ? `<div class="section-hdr" style="margin-top:24px;"><h3>📄 Study Notes</h3></div><div class="grid-auto">${c.notes.map(n=>`<div class="card"><div style="font-weight:700;">${n.title}</div><div style="font-size:0.82rem;color:var(--muted);">${n.subject} · ${n.topic}</div><a href="${n.fileUrl}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:10px;">Download PDF</a></div>`).join('')}</div>` : ''}`;
+  } catch(e) { el.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Failed to load course details.</div>'; }
+}
+
+/* ===== NOTES ===== */
+async function loadNotes() {
+  const grid = document.getElementById('notes-grid');
+  grid.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Loading...</div>';
+  const search = document.getElementById('notes-search')?.value || '';
+  const subject = document.getElementById('notes-subject')?.value || '';
+  let params = [];
+  if (search) params.push(`search=${encodeURIComponent(search)}`);
+  if (subject) params.push(`subject=${encodeURIComponent(subject)}`);
+  try {
+    const res = await apiReq('/notes' + (params.length ? '?' + params.join('&') : ''));
+    const notes = res.data || [];
+    // populate subjects
+    const subjects = [...new Set(notes.map(n => n.subject).filter(Boolean))];
+    const sel = document.getElementById('notes-subject');
+    const curVal = sel.value;
+    sel.innerHTML = '<option value="">All Subjects</option>' + subjects.map(s => `<option ${s===curVal?'selected':''}>${s}</option>`).join('');
+    grid.innerHTML = notes.length ? notes.map(n => `
+      <div class="card card-hover">
+        <div style="font-size:2rem;margin-bottom:10px;">📄</div>
+        <span class="badge badge-blue" style="margin-bottom:8px;">${n.subject}</span>
+        <div style="font-weight:700;margin-bottom:4px;">${n.title}</div>
+        <div style="font-size:0.82rem;color:var(--muted);margin-bottom:4px;">Topic: ${n.topic}</div>
+        <div style="font-size:0.8rem;color:var(--subtle);margin-bottom:12px;">${n.course?.title||'General'} · ${n.fileSize||'—'}</div>
+        <a href="${n.fileUrl}" target="_blank" class="btn btn-primary btn-sm btn-full">⬇️ Download PDF</a>
+      </div>`).join('') : '<div class="empty"><div class="icon">📄</div><h3>No Notes Found</h3></div>';
+  } catch(e) { grid.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Failed to load notes.</div>'; }
+}
+
+/* ===== VIDEOS ===== */
+async function loadVideos() {
+  const grid = document.getElementById('videos-grid');
+  grid.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Loading...</div>';
+  const search = document.getElementById('videos-search')?.value || '';
+  try {
+    const res = await apiReq('/videos' + (search ? `?search=${encodeURIComponent(search)}` : ''));
+    const videos = res.data || [];
+    grid.innerHTML = videos.length ? videos.map(v => `
+      <div class="video-card">
+        <div class="video-embed"><iframe src="https://www.youtube.com/embed/${v.youtubeId}" allowfullscreen></iframe></div>
+        <div class="video-body">
+          <span class="badge badge-purple" style="margin-bottom:8px;">${v.topic}</span>
+          <div style="font-weight:700;margin-bottom:4px;">${v.title}</div>
+          <div style="font-size:0.82rem;color:var(--muted);margin-bottom:10px;">${v.course?.title||''} · ${v.duration}</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="badge ${v.isCompleted?'badge-green':'badge-yellow'}">${v.isCompleted?'✅ Completed':'⏳ Pending'}</span>
+            ${!v.isCompleted ? `<button class="btn btn-primary btn-sm" onclick="markComplete('${v._id}',this)">Mark Complete</button>` : ''}
+          </div>
+        </div>
+      </div>`).join('') : '<div class="empty"><div class="icon">🎥</div><h3>No Videos Found</h3></div>';
+  } catch(e) { grid.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Failed to load videos.</div>'; }
+}
+
+async function markComplete(videoId, btn) {
+  if (!Auth.requireAuth()) return;
+  try {
+    const res = await apiReq(`/videos/${videoId}/complete`, 'POST');
+    showToast(`Lesson marked complete! Progress: ${res.progressPercentage}%`, 'success');
+    btn.closest('.video-body').querySelector('.badge').className = 'badge badge-green';
+    btn.closest('.video-body').querySelector('.badge').textContent = '✅ Completed';
+    btn.remove();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+/* ===== QUIZZES ===== */
+async function loadQuizzes() {
+  const grid = document.getElementById('quizzes-grid');
+  grid.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Loading...</div>';
+  try {
+    const res = await apiReq('/quizzes');
+    const quizzes = res.data || [];
+    grid.innerHTML = quizzes.length ? quizzes.map(q => `
+      <div class="card card-hover">
+        <span class="badge badge-green" style="margin-bottom:10px;">📝 ${q.totalQuestions||q.questions?.length||0} Questions</span>
+        <div style="font-weight:700;font-size:1.05rem;margin-bottom:6px;">${q.title}</div>
+        <div style="font-size:0.82rem;color:var(--muted);margin-bottom:12px;">${q.course?.title||''} · ⏱️ ${q.timeLimitMinutes} mins · Pass: ${q.passingPercentage}%</div>
+        ${q.latestAttempt ? `<div class="badge ${q.latestAttempt.passed?'badge-green':'badge-red'}" style="margin-bottom:10px;">Last: ${q.latestAttempt.percentage}% ${q.latestAttempt.passed?'PASS':'FAIL'}</div>` : ''}
+        <button class="btn btn-primary btn-full" onclick="openQuiz('${q._id}','${q.title}')">🚀 Take Quiz</button>
+      </div>`).join('') : '<div class="empty"><div class="icon">🧠</div><h3>No Quizzes Available</h3></div>';
+  } catch(e) { grid.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Failed to load quizzes.</div>'; }
+}
+
+async function openQuiz(quizId, title) {
+  if (!Auth.requireAuth()) return;
+  const modal = document.getElementById('quiz-modal');
+  const body = document.getElementById('quiz-modal-body');
+  document.getElementById('quiz-modal-title').textContent = title;
+  modal.style.display = 'flex';
+  body.innerHTML = '<p style="text-align:center;padding:20px;">Loading quiz...</p>';
+  try {
+    const res = await apiReq(`/quizzes/${quizId}`);
+    currentQuiz = res.data;
+    studentAnswers = {};
+    body.innerHTML = `
+      <p style="color:var(--muted);margin-bottom:20px;">${currentQuiz.description||''} | ${currentQuiz.questions.length} questions | ${currentQuiz.timeLimitMinutes} mins</p>
+      ${currentQuiz.questions.map((q, i) => `
+        <div style="margin-bottom:20px;padding:16px;border:1px solid var(--border);border-radius:12px;">
+          <div style="font-weight:700;margin-bottom:12px;">${i+1}. ${q.questionText}</div>
+          ${q.options.map((o, j) => `<button class="option-btn" id="opt-${i}-${j}" onclick="selectOption(${i},${j})">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}
+        </div>`).join('')}
+      <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="submitQuiz('${quizId}')">Submit Quiz ✅</button>`;
+  } catch(e) { body.innerHTML = `<p style="color:red;">Failed to load quiz: ${e.message}</p>`; }
+}
+
+function selectOption(qIdx, optIdx) {
+  studentAnswers[qIdx] = optIdx;
+  for (let j = 0; j < 4; j++) {
+    const b = document.getElementById(`opt-${qIdx}-${j}`);
+    if (b) b.className = 'option-btn' + (j === optIdx ? ' selected' : '');
+  }
+}
+
+async function submitQuiz(quizId) {
+  const answers = Object.entries(studentAnswers).map(([qi, sel]) => ({ questionIndex: parseInt(qi), selectedOption: sel }));
+  try {
+    const res = await apiReq(`/quizzes/${quizId}/submit`, 'POST', { answers });
+    const r = res.result;
+    const body = document.getElementById('quiz-modal-body');
+    body.innerHTML = `
+      <div style="text-align:center;padding:20px;">
+        <div style="font-size:3rem;">${r.passed ? '🏆' : '📚'}</div>
+        <h2 style="margin:12px 0;">${r.passed ? 'Congratulations!' : 'Keep Practicing!'}</h2>
+        <div style="font-size:2rem;font-weight:800;color:var(--primary);margin:10px 0;">${r.percentage}%</div>
+        <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin:16px 0;">
+          <div><div style="font-weight:700;">${r.score}/${r.totalQuestions}</div><div style="font-size:0.82rem;color:var(--muted);">Correct</div></div>
+          <div><div style="font-weight:700;">${r.passed?'PASSED':'FAILED'}</div><div style="font-size:0.82rem;color:var(--muted);">Result</div></div>
+          <div><div style="font-weight:700;">${r.passingPercentage}%</div><div style="font-size:0.82rem;color:var(--muted);">Passing Mark</div></div>
+        </div>
+        <div style="text-align:left;margin-top:20px;">
+          <h4 style="margin-bottom:12px;">Answer Review:</h4>
+          ${r.evaluatedAnswers.map((a,i) => `
+            <div style="padding:10px;border-radius:8px;margin-bottom:8px;background:${a.isCorrect?'#d1fae5':'#fee2e2'};">
+              <div style="font-size:0.85rem;font-weight:600;">${i+1}. ${a.questionText}</div>
+              <div style="font-size:0.8rem;margin-top:4px;">Your answer: ${a.options?.[a.selectedOption]||'Not answered'} ${a.isCorrect?'✅':'❌'}</div>
+              ${!a.isCorrect?`<div style="font-size:0.8rem;color:#065f46;">Correct: ${a.options?.[a.correctOption]}</div>`:''}
+            </div>`).join('')}
+        </div>
+        <button class="btn btn-outline btn-full" style="margin-top:16px;" onclick="closeQuiz()">Close</button>
+      </div>`;
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function closeQuiz() {
+  document.getElementById('quiz-modal').style.display = 'none';
+  currentQuiz = null; studentAnswers = {};
+}
+
+/* ===== STUDENT DASHBOARD ===== */
+async function initStudentDashboard() {
+  if (!Auth.requireAuth()) return;
+  const user = Auth.getUser();
+  document.getElementById('student-welcome').textContent = `Welcome back, ${user.name}! 👋`;
+  document.getElementById('student-sidebar-user').textContent = `👤 ${user.name}`;
+  try {
+    const res = await apiReq('/enrolments/progress');
+    const { summary, courses } = res.data;
+    document.getElementById('m-enrolled').textContent = summary.totalEnrolled;
+    document.getElementById('m-completed').textContent = summary.completedCourses;
+    document.getElementById('m-lessons').textContent = summary.totalLessonsCompleted;
+    document.getElementById('m-quiz').textContent = summary.averageQuizScore + '%';
+    const list = document.getElementById('student-courses-list');
+    if (!courses || courses.length === 0) {
+      list.innerHTML = '<div class="card" style="text-align:center;padding:40px;"><div style="font-size:2rem;">📚</div><h3>No courses yet</h3><p>Browse and enroll in a course to get started!</p><button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="showPage(\'courses\')">Explore Courses</button></div>';
+      return;
+    }
+    list.innerHTML = courses.map(c => `
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div>
+            <span class="badge badge-blue" style="font-size:0.7rem;">${c.category}</span>
+            <div style="font-weight:700;margin-top:6px;">${c.courseTitle}</div>
+            <div style="font-size:0.82rem;color:var(--muted);">👨‍🏫 ${c.instructor}</div>
+          </div>
+          <span class="badge ${c.status==='completed'?'badge-green':'badge-yellow'}">${c.status==='completed'?'Completed':'In Progress'}</span>
+        </div>
+        <div class="progress-wrap" style="margin:10px 0;"><div class="progress-bar" style="width:${c.progressPercentage}%;"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted);">
+          <span>${c.completedLessons}/${c.totalLessons} lessons</span><span style="font-weight:700;color:var(--primary);">${c.progressPercentage}%</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn btn-primary btn-sm" onclick="showPage('videos')">▶️ Continue</button>
+          <button class="btn btn-outline btn-sm" onclick="showPage('notes')">📄 Notes</button>
+          <button class="btn btn-outline btn-sm" onclick="showPage('quizzes')">🧠 Quiz</button>
+        </div>
+      </div>`).join('');
+  } catch(e) { showToast('Error loading dashboard: ' + e.message, 'error'); }
+}
+
+/* ===== ENROLMENTS ===== */
+async function initEnrolments() {
+  if (!Auth.requireAuth()) return;
+  const list = document.getElementById('enrolments-list');
+  list.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Loading...</div>';
+  try {
+    const res = await apiReq('/enrolments/my-courses');
+    const enrolments = res.data || [];
+    list.innerHTML = enrolments.length ? enrolments.map(e => `
+      <div class="course-card">
+        <img class="course-thumb" src="${e.course?.thumbnail||'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400'}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400'" alt="">
+        <div class="course-body">
+          <span class="badge badge-blue">${e.course?.category||''}</span>
+          <div class="course-title">${e.course?.title||'Course'}</div>
+          <div style="font-size:0.82rem;color:var(--muted);margin-bottom:8px;">Enrolled: ${new Date(e.enrolledAt).toLocaleDateString()}</div>
+          <div class="progress-wrap" style="margin-bottom:6px;"><div class="progress-bar" style="width:${e.progressPercentage}%;"></div></div>
+          <div style="font-size:0.8rem;font-weight:700;color:var(--primary);margin-bottom:10px;">${e.progressPercentage}% Complete</div>
+          <div class="course-actions">
+            <button class="btn btn-primary btn-sm" onclick="showPage('videos')">▶️ Continue</button>
+            <span class="badge ${e.status==='completed'?'badge-green':'badge-yellow'}">${e.status}</span>
+          </div>
+        </div>
+      </div>`).join('') : '<div class="empty"><div class="icon">🎓</div><h3>No Enrolments</h3><button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="showPage(\'courses\')">Browse Courses</button></div>';
+  } catch(e) { list.innerHTML = '<div class="card" style="padding:40px;text-align:center;">Failed to load enrolments.</div>'; }
+}
+
+/* ===== PROGRESS ===== */
+async function initProgress() {
+  if (!Auth.requireAuth()) return;
+  try {
+    const res = await apiReq('/enrolments/progress');
+    const { summary, courses } = res.data;
+    document.getElementById('progress-metrics').innerHTML = `
+      <div class="metric-card"><div class="metric-icon blue">📚</div><div><div class="metric-val">${summary.totalEnrolled}</div><div class="metric-lbl">Total Enrolled</div></div></div>
+      <div class="metric-card"><div class="metric-icon green">✅</div><div><div class="metric-val">${summary.completedCourses}</div><div class="metric-lbl">Completed</div></div></div>
+      <div class="metric-card"><div class="metric-icon purple">⏳</div><div><div class="metric-val">${summary.pendingCourses}</div><div class="metric-lbl">In Progress</div></div></div>
+      <div class="metric-card"><div class="metric-icon amber">🏆</div><div><div class="metric-val">${summary.averageQuizScore}%</div><div class="metric-lbl">Avg Quiz Score</div></div></div>`;
+    const list = document.getElementById('progress-list');
+    list.innerHTML = (courses||[]).map(c => `
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div><div style="font-weight:700;">${c.courseTitle}</div><div style="font-size:0.82rem;color:var(--muted);">${c.category} · ${c.instructor}</div></div>
+          <span class="badge ${c.status==='completed'?'badge-green':'badge-yellow'}">${c.status==='completed'?'Completed':'In Progress'}</span>
+        </div>
+        <div class="progress-wrap" style="margin-bottom:8px;"><div class="progress-bar" style="width:${c.progressPercentage}%;"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+          <span style="color:var(--muted);">${c.completedLessons}/${c.totalLessons} lessons completed</span>
+          <span style="font-weight:700;color:var(--primary);">${c.progressPercentage}%</span>
+        </div>
+      </div>`).join('');
+  } catch(e) { showToast('Error loading progress', 'error'); }
+}
+
+/* ===== ADMIN DASHBOARD ===== */
+async function initAdminDashboard() {
+  if (!Auth.requireAuth('admin')) return;
+  try {
+    const res = await apiReq('/admin/stats');
+    const s = res.data.stats;
+    document.getElementById('admin-metrics').innerHTML = `
+      <div class="metric-card"><div class="metric-icon blue">👥</div><div><div class="metric-val">${s.totalStudents}</div><div class="metric-lbl">Students</div></div></div>
+      <div class="metric-card"><div class="metric-icon green">📚</div><div><div class="metric-val">${s.totalCourses}</div><div class="metric-lbl">Courses</div></div></div>
+      <div class="metric-card"><div class="metric-icon purple">🎓</div><div><div class="metric-val">${s.totalEnrolments}</div><div class="metric-lbl">Enrolments</div></div></div>
+      <div class="metric-card"><div class="metric-icon amber">🧠</div><div><div class="metric-val">${s.totalQuizzes}</div><div class="metric-lbl">Quizzes</div></div></div>`;
+    document.getElementById('admin-enrolments-table').innerHTML = (res.data.recentEnrolments||[]).map(e => `<tr><td>${e.student?.name||''}</td><td>${e.course?.title||''}</td><td>${new Date(e.enrolledAt).toLocaleDateString()}</td></tr>`).join('');
+    document.getElementById('admin-quiz-table').innerHTML = (res.data.recentQuizAttempts||[]).map(a => `<tr><td>${a.student?.name||''}</td><td>${a.quiz?.title||''}</td><td><span class="badge ${a.passed?'badge-green':'badge-red'}">${a.percentage}%</span></td></tr>`).join('');
+  } catch(e) { showToast('Error loading admin stats', 'error'); }
+}
+
+/* ===== MANAGE COURSES ===== */
+async function initManageCourses() {
+  if (!Auth.requireAuth('admin')) return;
+  try {
+    const res = await apiReq('/courses');
+    const courses = res.data || [];
+    document.getElementById('manage-courses-table').innerHTML = courses.map(c => `
+      <tr>
+        <td><div style="font-weight:600;">${c.title}</div></td>
+        <td><span class="badge badge-blue">${c.category}</span></td>
+        <td>${c.instructor}</td>
+        <td>${c.enrolledCount||0}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteCourse('${c._id}')">🗑️ Delete</button></td>
+      </tr>`).join('');
+  } catch(e) {}
+  document.getElementById('add-course-form').onsubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await apiReq('/courses', 'POST', {
+        title: document.getElementById('c-title').value,
+        description: document.getElementById('c-desc').value,
+        instructor: document.getElementById('c-instructor').value,
+        category: document.getElementById('c-category').value,
+        level: document.getElementById('c-level').value,
+        duration: document.getElementById('c-duration').value,
+        thumbnail: document.getElementById('c-thumb').value,
+      });
+      showToast('Course created!', 'success');
+      e.target.reset();
+      initManageCourses();
+    } catch(err) { showToast(err.message, 'error'); }
+  };
+}
+
+async function deleteCourse(id) {
+  if (!confirm('Delete this course and all related data?')) return;
+  try { await apiReq(`/courses/${id}`, 'DELETE'); showToast('Course deleted', 'success'); initManageCourses(); }
+  catch(e) { showToast(e.message, 'error'); }
+}
+
+/* ===== MANAGE MATERIALS ===== */
+async function initManageMaterials() {
+  if (!Auth.requireAuth('admin')) return;
+  loadManageNotes(); loadManageVideos();
+  document.getElementById('add-note-form').onsubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await apiReq('/notes', 'POST', {
+        course: document.getElementById('n-course').value,
+        title: document.getElementById('n-title').value,
+        subject: document.getElementById('n-subject').value,
+        topic: document.getElementById('n-topic').value,
+        fileUrl: document.getElementById('n-fileurl').value,
+        description: document.getElementById('n-desc').value,
+      });
+      showToast('Note uploaded!', 'success'); e.target.reset(); loadManageNotes();
+    } catch(err) { showToast(err.message, 'error'); }
+  };
+  document.getElementById('add-video-form').onsubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await apiReq('/videos', 'POST', {
+        course: document.getElementById('v-course').value,
+        title: document.getElementById('v-title').value,
+        topic: document.getElementById('v-topic').value,
+        youtubeUrl: document.getElementById('v-url').value,
+        duration: document.getElementById('v-duration').value,
+        order: document.getElementById('v-order').value,
+      });
+      showToast('Video added!', 'success'); e.target.reset(); loadManageVideos();
+    } catch(err) { showToast(err.message, 'error'); }
+  };
+}
+
+async function loadManageNotes() {
+  try {
+    const res = await apiReq('/notes');
+    document.getElementById('manage-notes-table').innerHTML = (res.data||[]).map(n => `
+      <tr><td>${n.title}</td><td>${n.subject}</td><td>${n.topic}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteNote('${n._id}')">🗑️</button></td></tr>`).join('');
+  } catch(e) {}
+}
+
+async function loadManageVideos() {
+  try {
+    const res = await apiReq('/videos');
+    document.getElementById('manage-videos-table').innerHTML = (res.data||[]).map(v => `
+      <tr><td>${v.title}</td><td>${v.topic}</td><td>${v.duration}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteVideo('${v._id}')">🗑️</button></td></tr>`).join('');
+  } catch(e) {}
+}
+
+async function deleteNote(id) {
+  if (!confirm('Delete this note?')) return;
+  try { await apiReq(`/notes/${id}`, 'DELETE'); showToast('Note deleted', 'success'); loadManageNotes(); }
+  catch(e) { showToast(e.message, 'error'); }
+}
+
+async function deleteVideo(id) {
+  if (!confirm('Delete this video?')) return;
+  try { await apiReq(`/videos/${id}`, 'DELETE'); showToast('Video deleted', 'success'); loadManageVideos(); }
+  catch(e) { showToast(e.message, 'error'); }
+}
+
+function switchTab(showId, hideId, btn) {
+  document.getElementById(showId).style.display = '';
+  document.getElementById(hideId).style.display = 'none';
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ===== MANAGE QUIZZES ===== */
+async function initManageQuizzes() {
+  if (!Auth.requireAuth('admin')) return;
+  try {
+    const res = await apiReq('/quizzes');
+    document.getElementById('manage-quizzes-table').innerHTML = (res.data||[]).map(q => `
+      <tr><td>${q.title}</td><td>${q.totalQuestions||q.questions?.length||0}</td><td>${q.timeLimitMinutes}m</td><td>${q.passingPercentage}%</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteQuiz('${q._id}')">🗑️</button></td></tr>`).join('');
+  } catch(e) {}
+  document.getElementById('add-quiz-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const questions = [];
+    document.querySelectorAll('.question-block').forEach((block, i) => {
+      const opts = Array.from(block.querySelectorAll('.q-option')).map(o => o.value);
+      questions.push({
+        questionText: block.querySelector('.q-text').value,
+        options: opts,
+        correctOption: parseInt(block.querySelector('.q-correct').value),
+      });
+    });
+    if (questions.length === 0) { showToast('Add at least one question', 'warning'); return; }
+    try {
+      await apiReq('/quizzes', 'POST', {
+        course: document.getElementById('q-course').value,
+        title: document.getElementById('q-title').value,
+        description: document.getElementById('q-desc').value,
+        timeLimitMinutes: parseInt(document.getElementById('q-time').value),
+        passingPercentage: parseInt(document.getElementById('q-pass').value),
+        questions,
+      });
+      showToast('Quiz created!', 'success');
+      e.target.reset();
+      document.getElementById('questions-container').innerHTML = '';
+      questionCount = 0;
+      initManageQuizzes();
+    } catch(err) { showToast(err.message, 'error'); }
+  };
+}
+
+function addQuestion() {
+  questionCount++;
+  const div = document.createElement('div');
+  div.className = 'question-block card';
+  div.style.cssText = 'margin-bottom:16px;padding:16px;';
+  div.innerHTML = `
+    <div style="font-weight:700;margin-bottom:10px;">Question ${questionCount}</div>
+    <div class="form-group"><input class="form-control q-text" placeholder="Question text" required></div>
+    ${[0,1,2,3].map(i=>`<div class="form-group"><input class="form-control q-option" placeholder="Option ${String.fromCharCode(65+i)}" required></div>`).join('')}
+    <div class="form-group"><label class="form-label">Correct Option (0=A, 1=B, 2=C, 3=D)</label>
+    <select class="form-control q-correct"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div>
+    <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.question-block').remove();questionCount--;">Remove</button>`;
+  document.getElementById('questions-container').appendChild(div);
+}
+
+async function deleteQuiz(id) {
+  if (!confirm('Delete this quiz?')) return;
+  try { await apiReq(`/quizzes/${id}`, 'DELETE'); showToast('Quiz deleted', 'success'); initManageQuizzes(); }
+  catch(e) { showToast(e.message, 'error'); }
+}
+
+/* ===== MANAGE STUDENTS ===== */
+async function initManageStudents() {
+  if (!Auth.requireAuth('admin')) return;
+  try {
+    const res = await apiReq('/admin/students');
+    document.getElementById('manage-students-table').innerHTML = (res.data||[]).map(s => `
+      <tr>
+        <td><div style="font-weight:600;">${s.name}</div></td>
+        <td>${s.email}</td>
+        <td>${s.studentId||'—'}</td>
+        <td>${s.totalEnrolments||0}</td>
+        <td>${s.completedCourses||0}</td>
+        <td><span class="badge ${(s.avgQuizScore||0)>=60?'badge-green':'badge-yellow'}">${s.avgQuizScore||0}%</span></td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteStudent('${s._id}')">🗑️</button></td>
+      </tr>`).join('');
+  } catch(e) { showToast('Error loading students', 'error'); }
+}
+
+async function deleteStudent(id) {
+  if (!confirm('Delete this student account?')) return;
+  try { await apiReq(`/admin/users/${id}`, 'DELETE'); showToast('Student deleted', 'success'); initManageStudents(); }
+  catch(e) { showToast(e.message, 'error'); }
+}
+
+/* ===== MISC ===== */
+function fillDemo(type) {
+  if (type === 'student') {
+    document.getElementById('login-email').value = 'student@elearn.com';
+    document.getElementById('login-password').value = 'student123';
+  } else {
+    document.getElementById('login-email').value = 'admin@elearn.com';
+    document.getElementById('login-password').value = 'admin123';
+  }
+  showToast(`${type} credentials filled`, 'info');
+}
+
+function toggleAdminField() {
+  document.getElementById('admin-secret-group').style.display =
+    document.getElementById('reg-role').value === 'admin' ? 'block' : 'none';
+}
+
+/* ===== LOGIN / REGISTER FORMS ===== */
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try {
+    const res = await apiReq('/auth/login', 'POST', {
+      email: document.getElementById('login-email').value.trim(),
+      password: document.getElementById('login-password').value
+    });
+    Auth.setAuth(res.token, res.user);
+    showToast('Login successful! Welcome back.', 'success');
+    setTimeout(() => { showPage(res.user.role === 'admin' ? 'admin-dashboard' : 'student-dashboard'); }, 500);
+  } catch(err) { showToast(err.message, 'error'); }
+  btn.disabled = false; btn.textContent = 'Sign In';
+});
+
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('reg-btn');
+  btn.disabled = true; btn.textContent = 'Creating...';
+  try {
+    const payload = {
+      name: document.getElementById('reg-name').value.trim(),
+      email: document.getElementById('reg-email').value.trim(),
+      password: document.getElementById('reg-password').value,
+      role: document.getElementById('reg-role').value,
+    };
+    if (payload.role === 'admin') payload.adminSecret = document.getElementById('reg-secret').value;
+    const res = await apiReq('/auth/register', 'POST', payload);
+    Auth.setAuth(res.token, res.user);
+    showToast('Account created! Welcome aboard.', 'success');
+    setTimeout(() => { showPage(res.user.role === 'admin' ? 'admin-dashboard' : 'student-dashboard'); }, 500);
+  } catch(err) { showToast(err.message, 'error'); }
+  btn.disabled = false; btn.textContent = 'Create Account';
+});
+
+/* ===== INIT ===== */
+window.addEventListener('DOMContentLoaded', () => {
+  const hash = window.location.hash.replace('#', '') || 'home';
+  showPage(hash);
+});
+
+window.addEventListener('hashchange', () => {
+  const hash = window.location.hash.replace('#', '') || 'home';
+  showPage(hash);
+});
+</script>
+</body>
+</html>
+

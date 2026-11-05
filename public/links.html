@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>E-Learning Portal – All Links</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 15px;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      color: #2d3748;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #718096;
+      font-size: 1rem;
+    }
+
+    .header .badge {
+      display: inline-block;
+      background: #48bb78;
+      color: white;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+
+    /* Credentials Box */
+    .credentials {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 35px;
+      flex-wrap: wrap;
+    }
+
+    .cred-card {
+      flex: 1;
+      min-width: 220px;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 0.88rem;
+    }
+
+    .cred-card.admin  { background: #fff5f5; border: 1.5px solid #fed7d7; }
+    .cred-card.student { background: #f0fff4; border: 1.5px solid #c6f6d5; }
+
+    .cred-card h4 { margin-bottom: 6px; font-size: 0.95rem; }
+    .cred-card.admin h4 { color: #c53030; }
+    .cred-card.student h4 { color: #276749; }
+
+    .cred-card p { color: #4a5568; line-height: 1.6; }
+    .cred-card strong { font-weight: 600; }
+
+    /* Section */
+    .section { margin-bottom: 28px; }
+
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #a0aec0;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #f7fafc;
+    }
+
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .link-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border: 1.5px solid transparent;
+    }
+
+    .link-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+
+    .link-card .icon {
+      font-size: 1.4rem;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    /* Color themes per section */
+    .public    { background: #ebf8ff; border-color: #bee3f8; color: #2b6cb0; }
+    .public:hover  { background: #bee3f8; }
+
+    .student   { background: #f0fff4; border-color: #c6f6d5; color: #276749; }
+    .student:hover { background: #c6f6d5; }
+
+    .admin     { background: #fff5f5; border-color: #fed7d7; color: #c53030; }
+    .admin:hover   { background: #fed7d7; }
+
+    .api       { background: #faf5ff; border-color: #e9d8fd; color: #6b46c1; }
+    .api:hover     { background: #e9d8fd; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      color: #a0aec0;
+      font-size: 0.82rem;
+    }
+
+    .server-url {
+      display: inline-block;
+      background: #2d3748;
+      color: #68d391;
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <h1>🎓 E-Learning Portal</h1>
+      <p>All Pages &amp; Links in One Place</p>
+      <span class="badge">● Server Running on Port 5000</span>
+    </div>
+
+    <!-- Credentials -->
+    <div class="credentials">
+      <div class="cred-card admin">
+        <h4>🔑 Admin Login</h4>
+        <p><strong>Email:</strong> admin@elearn.com<br>
+           <strong>Password:</strong> admin123</p>
+      </div>
+      <div class="cred-card student">
+        <h4>🎓 Student Login</h4>
+        <p><strong>Email:</strong> student@elearn.com<br>
+           <strong>Password:</strong> student123</p>
+      </div>
+    </div>
+
+    <!-- Public Pages -->
+    <div class="section">
+      <div class="section-title">🌐 Public Pages</div>
+      <div class="links-grid">
+        <a href="/index.html" class="link-card public" target="_blank">
+          <span class="icon">🏠</span><span>Landing Page</span>
+        </a>
+        <a href="/login.html" class="link-card public" target="_blank">
+          <span class="icon">🔐</span><span>Login</span>
+        </a>
+        <a href="/register.html" class="link-card public" target="_blank">
+          <span class="icon">📝</span><span>Register</span>
+        </a>
+        <a href="/courses.html" class="link-card public" target="_blank">
+          <span class="icon">📚</span><span>Course Catalogue</span>
+        </a>
+        <a href="/course-details.html" class="link-card public" target="_blank">
+          <span class="icon">📖</span><span>Course Details</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Student Pages -->
+    <div class="section">
+      <div class="section-title">🎓 Student Pages</div>
+      <div class="links-grid">
+        <a href="/student-dashboard.html" class="link-card student" target="_blank">
+          <span class="icon">📊</span><span>Student Dashboard</span>
+        </a>
+        <a href="/enrolments.html" class="link-card student" target="_blank">
+          <span class="icon">📋</span><span>My Enrolments</span>
+        </a>
+        <a href="/progress.html" class="link-card student" target="_blank">
+          <span class="icon">📈</span><span>Learning Progress</span>
+        </a>
+        <a href="/notes.html" class="link-card student" target="_blank">
+          <span class="icon">📄</span><span>Study Materials</span>
+        </a>
+        <a href="/videos.html" class="link-card student" target="_blank">
+          <span class="icon">🎬</span><span>Video Lessons</span>
+        </a>
+        <a href="/quizzes.html" class="link-card student" target="_blank">
+          <span class="icon">📝</span><span>Quizzes</span>
+        </a>
+        <a href="/quiz-result.html" class="link-card student" target="_blank">
+          <span class="icon">🏆</span><span>Quiz Results</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Admin Pages -->
+    <div class="section">
+      <div class="section-title">⚙️ Admin Pages</div>
+      <div class="links-grid">
+        <a href="/admin-dashboard.html" class="link-card admin" target="_blank">
+          <span class="icon">🖥️</span><span>Admin Dashboard</span>
+        </a>
+        <a href="/manage-courses.html" class="link-card admin" target="_blank">
+          <span class="icon">📚</span><span>Manage Courses</span>
+        </a>
+        <a href="/manage-materials.html" class="link-card admin" target="_blank">
+          <span class="icon">📁</span><span>Manage Materials</span>
+        </a>
+        <a href="/manage-quizzes.html" class="link-card admin" target="_blank">
+          <span class="icon">📝</span><span>Manage Quizzes</span>
+        </a>
+        <a href="/manage-students.html" class="link-card admin" target="_blank">
+          <span class="icon">👥</span><span>Manage Students</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- API Endpoints -->
+    <div class="section">
+      <div class="section-title">🔌 Key API Endpoints</div>
+      <div class="links-grid">
+        <a href="/api/courses" class="link-card api" target="_blank">
+          <span class="icon">📡</span><span>GET /api/courses</span>
+        </a>
+        <a href="/api/videos" class="link-card api" target="_blank">
+          <span class="icon">📡</span><span>GET /api/videos</span>
+        </a>
+        <a href="/api/notes" class="link-card api" target="_blank">
+          <span class="icon">📡</span><span>GET /api/notes</span>
+        </a>
+        <a href="/api/quizzes" class="link-card api" target="_blank">
+          <span class="icon">📡</span><span>GET /api/quizzes</span>
+        </a>
+        <a href="/api/admin/stats" class="link-card api" target="_blank">
+          <span class="icon">📡</span><span>GET /api/admin/stats</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="server-url">http://localhost:5000</div>
+      <p>E-Learning Management Portal &nbsp;|&nbsp; Node.js + Express + MongoDB</p>
+    </div>
+
+  </div>
+</body>
+</html>
+

@@ -52,7 +52,9 @@ const pages = [
   'manage-courses',
   'manage-materials',
   'manage-quizzes',
-  'manage-students'
+  'manage-students',
+  'app',
+  'links'
 ];
 
 pages.forEach((page) => {
